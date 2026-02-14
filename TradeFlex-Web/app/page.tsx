@@ -7,8 +7,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Share2, Download, TrendingUp, TrendingDown, Rocket } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Share2, Download, Rocket } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -16,9 +16,89 @@ export default function Home() {
   const [entry, setEntry] = useState('');
   const [exit, setExit] = useState('');
   const [type, setType] = useState('LONG');
+  const [status, setStatus] = useState<'OPEN' | 'CLOSED'>('OPEN');
+  
+  // Option State
+  const [instrument, setInstrument] = useState<'STOCK' | 'OPTION'>('STOCK');
+  const [strike, setStrike] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [optionType, setOptionType] = useState<'CALL' | 'PUT'>('CALL');
 
+  // Lang State
   const [lang, setLang] = useState<'en' | 'cn'>('en');
 
+  // Oracle State
+  const [bullCount, setBullCount] = useState(69420);
+  const [bearCount, setBearCount] = useState(31000);
+  const [voted, setVoted] = useState<'bull' | 'bear' | null>(null);
+
+  // --- CALCULATIONS ---
+  const entryNum = parseFloat(entry) || 0;
+  const exitNum = parseFloat(exit) || 0;
+  let pnlPercent = 0;
+  
+  if (entryNum > 0 && exitNum > 0) {
+    pnlPercent = type === 'LONG' 
+      ? ((exitNum - entryNum) / entryNum) * 100
+      : ((entryNum - exitNum) / entryNum) * 100;
+  }
+
+  const isProfit = pnlPercent >= 0;
+  const textColor = '#ffffff'; 
+  const gradientStyle = isProfit 
+    ? { background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' } 
+    : { background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' }; 
+
+  // --- EFFECTS ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.5) {
+        setBullCount(prev => prev + Math.floor(Math.random() * 10));
+      } else {
+        setBearCount(prev => prev + Math.floor(Math.random() * 5));
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalVotes = bullCount + bearCount;
+  const bullPercent = Math.round((bullCount / totalVotes) * 100);
+  const bearPercent = 100 - bullPercent;
+
+  const handleVote = (side: 'bull' | 'bear') => {
+    if (voted) return;
+    setVoted(side);
+    if (side === 'bull') setBullCount(prev => prev + 1);
+    else setBearCount(prev => prev + 1);
+  };
+
+  const handleGenerate = async () => {
+    const preview = document.getElementById('preview-card');
+    if (preview) {
+      preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(async () => {
+        try {
+          const canvas = await html2canvas(preview, {
+            backgroundColor: null,
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            allowTaint: true,
+            ignoreElements: (element) => element.tagName === 'BUTTON'
+          });
+          const image = canvas.toDataURL("image/png");
+          const link = document.createElement('a');
+          link.href = image;
+          link.download = `TradeFlex-${ticker}-${pnlPercent.toFixed(2)}%.png`;
+          link.click();
+        } catch (err) {
+          console.error("Failed to generate image:", err);
+        }
+      }, 500);
+    }
+  };
+
+  // --- TRANSLATIONS ---
   const t = {
     en: {
       oracleTitle: "TODAY'S ORACLE 🔮",
@@ -33,14 +113,27 @@ export default function Home() {
       position: "POSITION",
       long: "LONG (BUY)",
       short: "SHORT (SELL)",
-      entry: "ENTRY PRICE",
-      exit: "EXIT PRICE",
+      status: "STATUS",
+      open: "OPEN (HOLDING)",
+      closed: "CLOSED (SOLD)",
+      instrument: "INSTRUMENT",
+      stock: "STOCK",
+      option: "OPTION",
+      strike: "STRIKE ($)",
+      expiry: "EXPIRATION",
+      call: "CALL",
+      put: "PUT",
+      entry: "AVG COST",
+      exit: "PRICE",
+      current: "PRICE",
       generate: "GENERATE IMAGE",
       verified: "VERIFIED BY TRADEFLEX",
       hallOfFame: "HALL OF FAME 🏆",
       mooners: "MOONERS 🚀",
       rekt: "REKT 💀",
-      downloadApp: "Download App"
+      downloadApp: "Download App",
+      unrealized: "UNREALIZED P/L",
+      realized: "REALIZED P/L",
     },
     cn: {
       oracleTitle: "今日预言机 🔮",
@@ -55,93 +148,79 @@ export default function Home() {
       position: "持仓方向",
       long: "做多 (买入)",
       short: "做空 (卖出)",
-      entry: "买入价",
+      status: "当前状态",
+      open: "持仓中 (浮盈亏)",
+      closed: "已平仓 (已实现)",
+      instrument: "交易品种",
+      stock: "正股",
+      option: "期权",
+      strike: "行权价 ($)",
+      expiry: "到期日",
+      call: "看涨期权 (CALL)",
+      put: "看跌期权 (PUT)",
+      entry: "平均成本",
       exit: "卖出价",
+      current: "当前价格",
       generate: "生成海报",
       verified: "TRADEFLEX 认证",
       hallOfFame: "名人堂 🏆",
       mooners: "赢家榜 🚀",
       rekt: "惨案榜 💀",
-      downloadApp: "下载APP"
+      downloadApp: "下载APP",
+      unrealized: "浮动盈亏 (Unrealized)",
+      realized: "已实现盈亏 (Realized)",
     }
   };
 
   const text = t[lang];
 
-  const entryNum = parseFloat(entry) || 0;
-  const exitNum = parseFloat(exit) || 0;
-  let pnlPercent = 0;
-  
-  if (entryNum > 0 && exitNum > 0) {
-    pnlPercent = type === 'LONG' 
-      ? ((exitNum - entryNum) / entryNum) * 100
-      : ((entryNum - exitNum) / entryNum) * 100;
-  }
-
-  const isProfit = pnlPercent >= 0;
-  // Use explicit RGB colors for html2canvas compatibility (oklab not supported)
-  const textColor = isProfit ? '#22c55e' : '#ef4444'; // green-500 : red-500
-  const gradientStyle = isProfit 
-    ? { background: 'linear-gradient(to bottom right, rgba(20, 83, 45, 0.4), black)' } // green-900/40 -> black
-    : { background: 'linear-gradient(to bottom right, rgba(127, 29, 29, 0.4), black)' }; // red-900/40 -> black
-
-  const handleGenerate = async () => {
-    // Scroll to preview
-    const preview = document.getElementById('preview-card');
-    if (preview) {
-      preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // Wait for scroll & render
-      setTimeout(async () => {
-        try {
-          const canvas = await html2canvas(preview, {
-            backgroundColor: null,
-            scale: 2, // High resolution
-            logging: false,
-            useCORS: true,
-            allowTaint: true,
-            ignoreElements: (element) => element.tagName === 'BUTTON' // Ignore buttons
-          });
-          
-          const image = canvas.toDataURL("image/png");
-          const link = document.createElement('a');
-          link.href = image;
-          link.download = `TradeFlex-${ticker}-${pnlPercent.toFixed(2)}%.png`;
-          link.click();
-        } catch (err) {
-          console.error("Failed to generate image:", err);
-        }
-      }, 500);
-    }
-  };
-
   return (
     <main className="min-h-screen bg-black text-white font-sans p-4 md:p-8 relative selection:bg-green-500/30">
-      {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+      
+      <style jsx global>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+      `}</style>
 
       <header className="flex flex-col gap-8 mb-12 max-w-4xl mx-auto relative z-10">
-        {/* Top Bar */}
         <div className="flex justify-between items-center w-full">
           <div className="flex items-center gap-2">
             <Rocket className="w-8 h-8 text-green-500 -rotate-45" />
             <h1 className="text-2xl font-black tracking-tighter bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
               TRADEFLEX
             </h1>
-            {/* Lang Switcher (Next to Logo) */}
             <button 
               onClick={() => setLang(lang === 'en' ? 'cn' : 'en')}
-              className="ml-2 hover:scale-110 transition text-xl"
+              className="ml-3 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
               title="Switch Language"
             >
-              {lang === 'en' ? '🇨🇳' : '🇺🇸'}
+              {lang === 'en' ? (
+                <svg viewBox="0 0 900 600" className="w-full h-full">
+                  <rect width="900" height="600" fill="#de2910"/>
+                  <path fill="#ffde00" d="M250.4 180.3l37.2 27.2-14.3 43.8 37.3-27.1 37.3 27.1-14.3-43.8 37.2-27.2-46-0.1-14.2-43.9-14.2 43.9z"/>
+                  <g transform="translate(400 130) rotate(-28)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
+                  <g transform="translate(470 205) rotate(-8)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
+                  <g transform="translate(470 300) rotate(16)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
+                  <g transform="translate(400 375) rotate(37)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 1235 650" className="w-full h-full">
+                  <rect width="1235" height="650" fill="#b22234"/>
+                  <path d="M0,0H1235V50H0M0,100H1235V150H0M0,200H1235V250H0M0,300H1235V350H0M0,400H1235V450H0M0,500H1235V550H0M0,600H1235V650H0" fill="#fff"/>
+                  <rect width="494" height="350" fill="#3c3b6e"/>
+                </svg>
+              )}
             </button>
           </div>
           
           <nav className="hidden md:flex gap-6 text-sm font-bold text-gray-400">
-            <a href="#" className="hover:text-white transition">FEED</a>
-            <a href="#" className="text-white">ORACLE</a>
-            <a href="#" className="hover:text-white transition">CREATE</a>
+            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white">ORACLE</button>
+            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
           </nav>
           
           <button className="bg-white text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-gray-200 transition">
@@ -149,42 +228,61 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Oracle Widget (Restored!) */}
-        <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md">
+        <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-black text-zinc-400 text-sm tracking-widest">TODAY'S ORACLE 🔮</h3>
-            <span className="text-green-500 font-bold text-sm animate-pulse">● LIVE VOTING</span>
+            <h3 className="font-black text-zinc-400 text-sm tracking-widest">{text.oracleTitle}</h3>
+            <span className="text-green-500 font-bold text-sm animate-pulse">● {text.live}</span>
           </div>
           
           <div className="flex gap-4">
             <button 
-              className="flex-1 border py-4 rounded-xl transition group flex flex-col items-center gap-1 hover:scale-[1.02]"
-              style={{ backgroundColor: 'rgba(20, 83, 45, 0.3)', borderColor: 'rgba(34, 197, 94, 0.3)' }}
+              onClick={() => handleVote('bull')}
+              disabled={voted !== null}
+              className={`flex-1 border py-4 rounded-xl transition group flex flex-col items-center gap-1 ${
+                voted === 'bull' ? 'bg-green-900/50 border-green-500 ring-2 ring-green-500/50 scale-105' : 'hover:scale-[1.02]'
+              }`}
+              style={{ 
+                backgroundColor: voted === 'bull' ? undefined : 'rgba(20, 83, 45, 0.3)', 
+                borderColor: voted === 'bull' ? undefined : 'rgba(34, 197, 94, 0.3)',
+                opacity: voted === 'bear' ? 0.5 : 1
+              }}
             >
               <span className="text-2xl transition">🐂</span>
-              <span className="font-black text-green-500">BULLISH</span>
-              <span className="text-xs text-green-500/60">69%</span>
+              <span className="font-black text-green-500">{text.bullish}</span>
+              <span className="text-xs text-green-500/60 transition-all duration-500">{bullPercent}%</span>
             </button>
             <button 
-              className="flex-1 border py-4 rounded-xl transition group flex flex-col items-center gap-1 hover:scale-[1.02]"
-              style={{ backgroundColor: 'rgba(127, 29, 29, 0.3)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+              onClick={() => handleVote('bear')}
+              disabled={voted !== null}
+              className={`flex-1 border py-4 rounded-xl transition group flex flex-col items-center gap-1 ${
+                voted === 'bear' ? 'bg-red-900/50 border-red-500 ring-2 ring-red-500/50 scale-105' : 'hover:scale-[1.02]'
+              }`}
+              style={{ 
+                backgroundColor: voted === 'bear' ? undefined : 'rgba(127, 29, 29, 0.3)', 
+                borderColor: voted === 'bear' ? undefined : 'rgba(239, 68, 68, 0.3)',
+                opacity: voted === 'bull' ? 0.5 : 1
+              }}
             >
               <span className="text-2xl transition">🐻</span>
-              <span className="font-black text-red-500">BEARISH</span>
-              <span className="text-xs text-red-500/60">31%</span>
+              <span className="font-black text-red-500">{text.bearish}</span>
+              <span className="text-xs text-red-500/60 transition-all duration-500">{bearPercent}%</span>
             </button>
+          </div>
+          
+          <div className="w-full h-1 bg-zinc-800 mt-4 rounded-full overflow-hidden flex">
+            <div className="h-full bg-green-500 transition-all duration-1000 ease-out" style={{ width: `${bullPercent}%` }}></div>
+            <div className="h-full bg-red-500 transition-all duration-1000 ease-out" style={{ width: `${bearPercent}%` }}></div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-start relative z-10">
+      <div id="generate-section" className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-start relative z-10">
         
-        {/* Left: Input Form */}
         <div className="space-y-8">
           <div className="space-y-2">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
               {text.flexTitle} <br/>
-              <span style={{ color: textColor }}>
+              <span style={{ color: isProfit ? '#10b981' : '#f43f5e' }}>
                 {isProfit ? text.gains : text.losses}
               </span>
             </h2>
@@ -194,6 +292,41 @@ export default function Home() {
           </div>
 
           <div className="bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 space-y-4 backdrop-blur-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-zinc-500 uppercase">{text.instrument}</label>
+                <select 
+                  value={instrument}
+                  onChange={(e) => setInstrument(e.target.value as 'STOCK' | 'OPTION')}
+                  className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-bold focus:border-green-500 outline-none transition appearance-none"
+                >
+                  <option value="STOCK">{text.stock}</option>
+                  <option value="OPTION">{text.option}</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-zinc-500 uppercase">{text.status}</label>
+                <div className="flex bg-black border border-zinc-700 rounded-lg p-1">
+                  <button
+                    onClick={() => setStatus('OPEN')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition ${
+                      status === 'OPEN' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {text.open}
+                  </button>
+                  <button
+                    onClick={() => setStatus('CLOSED')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition ${
+                      status === 'CLOSED' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {text.closed}
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-zinc-500 uppercase">{text.ticker}</label>
@@ -207,16 +340,62 @@ export default function Home() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-zinc-500 uppercase">{text.position}</label>
-                <select 
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-bold focus:border-green-500 outline-none transition appearance-none"
-                >
-                  <option value="LONG">{text.long}</option>
-                  <option value="SHORT">{text.short}</option>
-                </select>
+                <div className="flex bg-black border border-zinc-700 rounded-lg p-1">
+                  <button
+                    onClick={() => setType('LONG')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition ${
+                      type === 'LONG' ? 'bg-green-900/30 text-green-400 shadow-sm border border-green-900' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {text.long}
+                  </button>
+                  <button
+                    onClick={() => setType('SHORT')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition ${
+                      type === 'SHORT' ? 'bg-red-900/30 text-red-400 shadow-sm border border-red-900' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {text.short}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {instrument === 'OPTION' && (
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-zinc-500 uppercase">{text.strike}</label>
+                  <input 
+                    type="number" 
+                    value={strike}
+                    onChange={(e) => setStrike(e.target.value)}
+                    className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-bold focus:border-green-500 outline-none transition"
+                    placeholder="420"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Type</label>
+                  <select 
+                    value={optionType}
+                    onChange={(e) => setOptionType(e.target.value as 'CALL' | 'PUT')}
+                    className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-bold focus:border-green-500 outline-none transition appearance-none"
+                  >
+                    <option value="CALL">CALL</option>
+                    <option value="PUT">PUT</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-zinc-500 uppercase">{text.expiry}</label>
+                  <input 
+                    type="text" 
+                    value={expiry}
+                    onChange={(e) => setExpiry(e.target.value)}
+                    className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-bold focus:border-green-500 outline-none transition"
+                    placeholder="02/21"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -233,7 +412,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-zinc-500 uppercase">{text.exit}</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase">
+                  {status === 'OPEN' ? text.current : text.exit}
+                </label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-zinc-500">$</span>
                   <input 
@@ -257,7 +438,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right: Preview Card */}
         <div id="preview-card" className="relative group perspective-1000 scroll-mt-24">
           <div 
             className="relative group perspective-1000 scroll-mt-24 aspect-[9/16] w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 border border-white/10 flex flex-col items-center justify-center text-center p-8 group-hover:rotate-y-2 group-hover:scale-105"
@@ -267,45 +447,69 @@ export default function Home() {
             <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
             
             {/* Content */}
-            <div className="relative z-10 w-full space-y-8">
-              {/* Ticker (Big & Top) */}
-              <div className="absolute top-8 left-0 right-0 flex justify-center z-20">
-                <div className="bg-black/20 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl shadow-xl">
-                  <h3 className="text-5xl font-black tracking-widest text-white drop-shadow-lg">
-                    {ticker || 'BTC'}
-                  </h3>
+            <div className="relative z-10 w-full h-full flex flex-col justify-between p-6">
+              {/* Top: Status Tag */}
+              <div className="flex justify-center">
+                <div className="inline-block px-3 py-1 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm text-[10px] font-bold tracking-widest text-white/90 shadow-sm">
+                    {status === 'OPEN' ? text.unrealized : text.realized}
                 </div>
               </div>
 
-              {/* PnL & Emoji (Centered & Big) */}
-              <div className="py-8 space-y-4 mt-24">
+              {/* Center: PnL & Mascot (Seamless Black) */}
+              <div className="flex flex-col items-center justify-center space-y-4">
                 <span 
-                  className="text-5xl md:text-7xl font-black tracking-tighter drop-shadow-lg block"
+                  className="text-6xl md:text-7xl font-black tracking-tighter drop-shadow-lg block"
                   style={{ color: textColor }}
                 >
                   {pnlPercent > 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
                 </span>
                 
-                {/* Emoji Reaction (Huge) */}
-                <div className="text-8xl md:text-9xl animate-bounce pt-8">
-                  {isProfit ? '🤑' : '😭'}
+                <div className="flex items-center justify-center pt-4">
+                  <div className="relative w-64 h-64 md:w-80 md:h-80">
+                    <img 
+                      src={isProfit ? "/moomoo_gain.jpg" : "/moomoo_loss.jpg"} 
+                      alt="Mascot"
+                      className="w-full h-full object-contain mix-blend-screen"
+                      style={{ animation: 'float 3s ease-in-out infinite' }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-8 text-sm font-mono border-t border-white/10 pt-8">
-                <div>
-                  <div className="text-zinc-500 mb-1">ENTRY</div>
-                  <div className="font-bold">${entryNum.toFixed(2)}</div>
+              {/* Bottom: Details Grid (Moomoo Style) */}
+              <div className="grid grid-cols-2 gap-4 text-left border-t border-white/10 pt-4 mt-4">
+                {/* Left: Ticker Info */}
+                <div className="flex flex-col justify-end">
+                  <h3 className="text-4xl font-black tracking-tighter text-white drop-shadow-md leading-none mb-1">
+                    {ticker || 'BTC'}
+                  </h3>
+                  {instrument === 'OPTION' && (
+                    <div className="text-xs font-bold text-white/80 bg-white/10 px-2 py-1 rounded inline-block w-fit">
+                      ${strike || '0'} {optionType} {expiry}
+                    </div>
+                  )}
+                  {/* User Info (Fake) */}
+                  <div className="mt-2 text-[10px] text-white/60 font-mono">
+                    Alice • {new Date().toLocaleDateString()}
+                  </div>
                 </div>
-                <div>
-                  <div className="text-zinc-500 mb-1">EXIT</div>
-                  <div className="font-bold">${exitNum.toFixed(2)}</div>
+
+                {/* Right: Price Info */}
+                <div className="flex flex-col justify-end text-right space-y-2">
+                  <div>
+                    <div className="text-[10px] text-white/70 tracking-widest uppercase mb-0.5">{status === 'OPEN' ? text.current : text.exit}</div>
+                    <div className="text-2xl font-bold text-white">${exitNum.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-white/70 tracking-widest uppercase mb-0.5">{text.entry}</div>
+                    <div className="text-2xl font-bold text-white">${entryNum.toFixed(2)}</div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-2 opacity-50">
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-2 opacity-80 text-white">
               {isProfit ? (
                 <Rocket className="w-4 h-4 -rotate-45" />
               ) : (
@@ -315,7 +519,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating Action Button (Mobile) */}
           <button className="md:hidden absolute -bottom-6 right-4 bg-white text-black p-4 rounded-full shadow-xl">
             <Share2 className="w-6 h-6" />
           </button>
@@ -323,8 +526,7 @@ export default function Home() {
 
       </div>
 
-      {/* Leaderboard Section */}
-      <section className="max-w-4xl mx-auto mt-24 mb-12 relative z-10">
+      <section id="leaderboard" className="max-w-4xl mx-auto mt-24 mb-12 relative z-10">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-black italic tracking-tighter">
             {text.hallOfFame}
