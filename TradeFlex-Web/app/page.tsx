@@ -17,6 +17,7 @@ export default function Home() {
   const [exit, setExit] = useState('');
   const [type, setType] = useState('LONG');
   const [status, setStatus] = useState<'OPEN' | 'CLOSED'>('OPEN');
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   
   // Option State
   const [instrument, setInstrument] = useState<'STOCK' | 'OPTION'>('STOCK');
@@ -111,11 +112,11 @@ export default function Home() {
       losses: "LOSSES 📉",
       ticker: "TICKER",
       position: "POSITION",
-      long: "LONG (BUY)",
-      short: "SHORT (SELL)",
+      long: "LONG",
+      short: "SHORT",
       status: "STATUS",
-      open: "OPEN (HOLDING)",
-      closed: "CLOSED (SOLD)",
+      open: "OPEN",
+      closed: "CLOSED",
       instrument: "INSTRUMENT",
       stock: "STOCK",
       option: "OPTION",
@@ -134,6 +135,7 @@ export default function Home() {
       downloadApp: "Download App",
       unrealized: "UNREALIZED P/L",
       realized: "REALIZED P/L",
+      emoji: "CUSTOM EMOTION"
     },
     cn: {
       oracleTitle: "今日预言机 🔮",
@@ -146,11 +148,11 @@ export default function Home() {
       losses: "亏损 📉",
       ticker: "股票代码",
       position: "持仓方向",
-      long: "做多 (买入)",
-      short: "做空 (卖出)",
+      long: "做多",
+      short: "做空",
       status: "当前状态",
-      open: "持仓中 (浮盈亏)",
-      closed: "已平仓 (已实现)",
+      open: "持仓中",
+      closed: "已平仓",
       instrument: "交易品种",
       stock: "正股",
       option: "期权",
@@ -169,6 +171,7 @@ export default function Home() {
       downloadApp: "下载APP",
       unrealized: "浮动盈亏 (Unrealized)",
       realized: "已实现盈亏 (Realized)",
+      emoji: "自定义表情"
     }
   };
 
@@ -428,6 +431,43 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Emoji Picker (Smart) */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">{text.emoji}</label>
+              <div className="flex flex-wrap gap-2">
+                {/* Default Mascot Button */}
+                <button 
+                  onClick={() => setSelectedEmoji(null)}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === null ? 'bg-white text-black ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                >
+                  🐮
+                </button>
+                
+                {/* Smart Emoji List */}
+                {(isProfit 
+                  ? ['🚀','💎','🐂','🤑','🌕','📈','💰','🏦','😎','🏎️'] 
+                  : ['😭','🤡','🐻','💀','📉','🥀','💸','🚑','🚽','🛑']
+                ).map(emoji => (
+                  <button 
+                    key={emoji}
+                    onClick={() => setSelectedEmoji(emoji)}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === emoji ? 'bg-white text-black' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+                
+                {/* Custom Input */}
+                <input 
+                   type="text" 
+                   placeholder="+"
+                   maxLength={2}
+                   className="w-10 h-10 rounded-lg bg-black border border-zinc-700 text-center text-xl focus:border-green-500 outline-none text-white"
+                   onChange={(e) => setSelectedEmoji(e.target.value)}
+                />
+              </div>
+            </div>
+
             <button 
               onClick={handleGenerate}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-black font-black py-4 rounded-xl text-lg hover:scale-[1.02] active:scale-[0.98] transition shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
@@ -455,7 +495,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Center: PnL & Mascot (Seamless Black) */}
+              {/* Center: PnL & Mascot (Seamless Black OR Emoji) */}
               <div className="flex flex-col items-center justify-center space-y-4">
                 <span 
                   className="text-6xl md:text-7xl font-black tracking-tighter drop-shadow-lg block"
@@ -465,14 +505,18 @@ export default function Home() {
                 </span>
                 
                 <div className="flex items-center justify-center pt-4">
-                  <div className="relative w-64 h-64 md:w-80 md:h-80">
-                    <img 
-                      src={isProfit ? "/moomoo_gain.jpg" : "/moomoo_loss.jpg"} 
-                      alt="Mascot"
-                      className="w-full h-full object-contain mix-blend-screen"
-                      style={{ animation: 'float 3s ease-in-out infinite' }}
-                    />
-                  </div>
+                  {selectedEmoji ? (
+                    <span className="text-9xl animate-bounce drop-shadow-2xl filter">{selectedEmoji}</span>
+                  ) : (
+                    <div className="relative w-64 h-64 md:w-80 md:h-80">
+                      <img 
+                        src={isProfit ? "/moomoo_gain.jpg" : "/moomoo_loss.jpg"} 
+                        alt="Mascot"
+                        className="w-full h-full object-contain mix-blend-screen"
+                        style={{ animation: 'float 3s ease-in-out infinite' }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
