@@ -15,6 +15,7 @@ export default function Home() {
   const [ticker, setTicker] = useState('TSLA');
   const [entry, setEntry] = useState('');
   const [exit, setExit] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [type, setType] = useState('LONG');
   const [status, setStatus] = useState<'OPEN' | 'CLOSED'>('OPEN');
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
@@ -50,12 +51,21 @@ export default function Home() {
   // --- CALCULATIONS ---
   const entryNum = parseFloat(entry) || 0;
   const exitNum = parseFloat(exit) || 0;
+  const quantityNum = parseFloat(quantity) || 0;
   let pnlPercent = 0;
+  let pnlAmount = 0;
   
   if (entryNum > 0 && exitNum > 0) {
     pnlPercent = type === 'LONG' 
       ? ((exitNum - entryNum) / entryNum) * 100
       : ((entryNum - exitNum) / entryNum) * 100;
+
+    if (quantityNum > 0) {
+      const multiplier = instrument === 'OPTION' ? 100 : 1;
+      pnlAmount = type === 'LONG'
+        ? (exitNum - entryNum) * quantityNum * multiplier
+        : (entryNum - exitNum) * quantityNum * multiplier;
+    }
   }
 
   const isProfit = pnlPercent >= 0;
@@ -141,6 +151,8 @@ export default function Home() {
       entry: "AVG COST",
       exit: "PRICE",
       current: "PRICE",
+      quantity: "QUANTITY",
+      pnl: "P/L ($)",
       generate: "GENERATE IMAGE",
       verified: "VERIFIED BY TRADEFLEX",
       hallOfFame: "HALL OF FAME 🏆",
@@ -177,6 +189,8 @@ export default function Home() {
       entry: "平均成本",
       exit: "卖出价",
       current: "当前价格",
+      quantity: "持仓数量",
+      pnl: "盈亏金额",
       generate: "生成海报",
       verified: "TRADEFLEX 认证",
       hallOfFame: "名人堂 🏆",
@@ -295,7 +309,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div id="generate-section" className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-start relative z-10">
+      <div id="generate-section" className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-start relative z-10">
         
         <div className="space-y-8">
           <div className="space-y-2">
@@ -446,14 +460,25 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-zinc-500 uppercase">{text.quantity}</label>
+              <input 
+                type="number" 
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="w-full bg-black border border-zinc-700 rounded-lg p-3 font-mono focus:border-green-500 outline-none transition"
+                placeholder={instrument === 'OPTION' ? "1 (Contracts)" : "100 (Shares)"}
+              />
+            </div>
 
             {/* Emoji Picker (Collapsible) */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <div className="flex justify-between items-center cursor-pointer" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-2">
                   {text.emoji} 
-                  <span className={`text-[10px] bg-zinc-800 px-2 py-0.5 rounded transition ${showEmojiPicker ? 'text-white' : 'text-zinc-500'}`}>
-                    {showEmojiPicker ? 'HIDE' : 'SHOW'}
+                  <span className={`text-xl transition hover:scale-125 cursor-pointer`}>
+                    🐶
                   </span>
                 </label>
                 {selectedEmoji && (
@@ -462,7 +487,7 @@ export default function Home() {
               </div>
               
               {showEmojiPicker && (
-                <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="absolute left-0 right-0 z-50 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-300 mt-1">
                   {/* Default Mascot Button */}
                   <button 
                     onClick={() => setSelectedEmoji(null)}
@@ -516,35 +541,36 @@ export default function Home() {
             <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
             
             {/* Content */}
-            <div className="relative z-10 w-full h-full flex flex-col justify-between p-6">
-              {/* Top: Status Tag */}
-              <div className="flex justify-center">
-                <div className="inline-block px-3 py-1 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm text-[10px] font-bold tracking-widest text-white/90 shadow-sm">
-                    {status === 'OPEN' ? text.unrealized : text.realized}
+            <div className="relative z-10 w-full h-full flex flex-col justify-between p-6 pt-12">
+              {/* Top: Status Tag - Moomoo Style */}
+              <div className="flex justify-center mb-2">
+                <div className="inline-block px-3 py-1 rounded-[4px] border border-white text-lg font-normal tracking-wide text-white shadow-sm w-fit whitespace-nowrap">
+                    {status === 'OPEN' ? `% ${text.unrealized}` : `% ${text.realized}`}
                 </div>
               </div>
 
               {/* Center: PnL & Mascot (Seamless Black OR Emoji) */}
               <div className="flex flex-col items-center justify-center space-y-4">
                 <span 
-                  className="text-6xl md:text-7xl font-black tracking-tighter drop-shadow-lg block"
+                  className="text-6xl md:text-7xl font-bold tracking-tight drop-shadow-md block"
                   style={{ color: textColor }}
                 >
                   {pnlPercent > 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
                 </span>
                 
+                {quantityNum > 0 && (
+                  <div className="mt-2 text-2xl font-bold tracking-wide text-white/90 drop-shadow-sm font-mono">
+                    {pnlAmount > 0 ? '+' : ''}${pnlAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-center pt-4">
                   {selectedEmoji ? (
                     <span className="text-9xl animate-bounce drop-shadow-2xl filter">{selectedEmoji}</span>
                   ) : (
-                    <div className="relative w-64 h-64 md:w-80 md:h-80">
-                      <img 
-                        src={isProfit ? "/moomoo_gain.jpg" : "/moomoo_loss.jpg"} 
-                        alt="Mascot"
-                        className="w-full h-full object-contain mix-blend-screen"
-                        style={{ animation: 'float 3s ease-in-out infinite' }}
-                      />
-                    </div>
+                    <span className="text-9xl animate-bounce drop-shadow-2xl filter">
+                      {isProfit ? '🤑' : '😭'}
+                    </span>
                   )}
                 </div>
               </div>
@@ -582,12 +608,8 @@ export default function Home() {
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-2 opacity-80 text-white">
-              {isProfit ? (
-                <Rocket className="w-4 h-4 -rotate-45" />
-              ) : (
-                <span className="text-sm">🥀</span>
-              )}
+            <div className="absolute top-6 left-6 flex items-center gap-2 opacity-90 text-white z-20">
+              <Rocket className="w-5 h-5 -rotate-45" />
               <span className="text-xs font-bold tracking-widest">{text.verified}</span>
             </div>
           </div>
@@ -599,41 +621,75 @@ export default function Home() {
 
       </div>
 
-      <section id="leaderboard" className="max-w-4xl mx-auto mt-24 mb-12 relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-black italic tracking-tighter">
-            {text.hallOfFame}
-          </h2>
-          <div className="flex gap-2 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-            <button className="px-4 py-1 bg-zinc-800 rounded-md text-xs font-bold text-green-400">{text.mooners}</button>
-            <button className="px-4 py-1 text-xs font-bold text-zinc-500 hover:text-white transition">{text.rekt}</button>
-          </div>
-        </div>
+      <section id="leaderboard" className="max-w-6xl mx-auto mt-24 mb-12 relative z-10">
+        <h2 className="text-3xl font-black italic tracking-tighter mb-8 text-center">
+          {text.hallOfFame}
+        </h2>
 
-        <div className="space-y-4">
-          {[
-            { rank: 1, user: 'DeepFuckingValue', ticker: 'GME', pnl: '+42069%', icon: '👑' },
-            { rank: 2, user: 'NancyP', ticker: 'NVDA', pnl: '+500%', icon: '🧠' },
-            { rank: 3, user: 'CryptoWhale', ticker: 'PEPE', pnl: '+69%', icon: '🐋' },
-          ].map((item) => (
-            <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-green-500/50 transition cursor-pointer group">
-              <div className="w-8 font-black text-zinc-600 text-lg">#{item.rank}</div>
-              <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition">
-                {item.icon}
-              </div>
-              <div className="flex-1">
-                <div className="font-bold text-white flex items-center gap-2">
-                  @{item.user}
-                  <span className="text-[10px] bg-green-900/50 text-green-400 px-1.5 py-0.5 rounded border border-green-900">PRO</span>
-                </div>
-                <div className="text-xs text-zinc-500 font-mono">{item.ticker} LONG</div>
-              </div>
-              <div className="text-right">
-                <div className="font-black text-xl text-green-500">{item.pnl}</div>
-                <div className="text-[10px] text-zinc-500">2m ago</div>
-              </div>
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Mooners Column */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+               <h3 className="text-xl font-black text-green-500 flex items-center gap-2">MOONERS 🚀</h3>
             </div>
-          ))}
+            {[
+              { rank: 1, user: 'DeepFuckingValue', ticker: 'GME', pnl: '+42069%', icon: '👑' },
+              { rank: 2, user: 'NancyP', ticker: 'NVDA', pnl: '+500%', icon: '🧠' },
+              { rank: 3, user: 'CryptoWhale', ticker: 'PEPE', pnl: '+69%', icon: '🐋' },
+              { rank: 4, user: 'CathieWood', ticker: 'COIN', pnl: '+45%', icon: '🌲' },
+              { rank: 5, user: 'ElonMusk', ticker: 'DOGE', pnl: '+42%', icon: '🐶' },
+            ].map((item) => (
+              <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-green-500/50 transition cursor-pointer group">
+                <div className="w-8 font-black text-zinc-600 text-lg">#{item.rank}</div>
+                <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition">
+                  {item.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-white flex items-center gap-2">
+                    @{item.user}
+                    <span className="text-[10px] bg-green-900/50 text-green-400 px-1.5 py-0.5 rounded border border-green-900">PRO</span>
+                  </div>
+                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} LONG</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-black text-xl text-green-500">{item.pnl}</div>
+                  <div className="text-[10px] text-zinc-500">2m ago</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Rekt Column */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+               <h3 className="text-xl font-black text-red-500 flex items-center gap-2">REKT 💀</h3>
+            </div>
+            {[
+              { rank: 1, user: 'FTX_User', ticker: 'FTT', pnl: '-100%', icon: '🔥' },
+              { rank: 2, user: 'WSB_Degens', ticker: 'BBBY', pnl: '-99%', icon: '🦍' },
+              { rank: 3, user: 'BillHwang', ticker: 'VIAC', pnl: '-90%', icon: '🐅' },
+              { rank: 4, user: 'JimCramer', ticker: 'META', pnl: '-85%', icon: '📢' },
+              { rank: 5, user: 'LoganPaul', ticker: 'ZOO', pnl: '-78%', icon: '🥊' },
+            ].map((item) => (
+              <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-red-500/50 transition cursor-pointer group">
+                <div className="w-8 font-black text-zinc-600 text-lg">#{item.rank}</div>
+                <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition">
+                  {item.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-white flex items-center gap-2">
+                    @{item.user}
+                    <span className="text-[10px] bg-red-900/50 text-red-400 px-1.5 py-0.5 rounded border border-red-900">YOLO</span>
+                  </div>
+                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} CALL</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-black text-xl text-red-500">{item.pnl}</div>
+                  <div className="text-[10px] text-zinc-500">5m ago</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>
