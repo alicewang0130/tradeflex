@@ -27,6 +27,18 @@ export default function Home() {
 
   // Lang State
   const [lang, setLang] = useState<'en' | 'cn'>('en');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Load Language Preference
+  useEffect(() => {
+    const savedLang = localStorage.getItem('tradeflex-lang') as 'en' | 'cn';
+    if (savedLang) setLang(savedLang);
+  }, []);
+
+  const changeLang = (newLang: 'en' | 'cn') => {
+    setLang(newLang);
+    localStorage.setItem('tradeflex-lang', newLang);
+  };
 
   // Oracle State
   const [bullCount, setBullCount] = useState(69420);
@@ -197,7 +209,7 @@ export default function Home() {
               TRADEFLEX
             </h1>
             <button 
-              onClick={() => setLang(lang === 'en' ? 'cn' : 'en')}
+              onClick={() => changeLang(lang === 'en' ? 'cn' : 'en')}
               className="ml-3 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
               title="Switch Language"
             >
@@ -431,41 +443,54 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Emoji Picker (Smart) */}
+            {/* Emoji Picker (Collapsible) */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-zinc-500 uppercase">{text.emoji}</label>
-              <div className="flex flex-wrap gap-2">
-                {/* Default Mascot Button */}
-                <button 
-                  onClick={() => setSelectedEmoji(null)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === null ? 'bg-white text-black ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
-                >
-                  🐮
-                </button>
-                
-                {/* Smart Emoji List */}
-                {(isProfit 
-                  ? ['🚀','💎','🐂','🤑','🌕','📈','💰','🏦','😎','🏎️'] 
-                  : ['😭','🤡','🐻','💀','📉','🥀','💸','🚑','🚽','🛑']
-                ).map(emoji => (
-                  <button 
-                    key={emoji}
-                    onClick={() => setSelectedEmoji(emoji)}
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === emoji ? 'bg-white text-black' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-                
-                {/* Custom Input */}
-                <input 
-                   type="text" 
-                   placeholder="+"
-                   maxLength={2}
-                   className="w-10 h-10 rounded-lg bg-black border border-zinc-700 text-center text-xl focus:border-green-500 outline-none text-white"
-                   onChange={(e) => setSelectedEmoji(e.target.value)}
-                />
+              <div className="flex justify-between items-center cursor-pointer" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-2">
+                  {text.emoji} 
+                  <span className={`text-[10px] bg-zinc-800 px-2 py-0.5 rounded transition ${showEmojiPicker ? 'text-white' : 'text-zinc-500'}`}>
+                    {showEmojiPicker ? 'HIDE' : 'SHOW'}
+                  </span>
+                </label>
+                {selectedEmoji && (
+                  <span className="text-xl animate-bounce">{selectedEmoji}</span>
+                )}
               </div>
+              
+              {showEmojiPicker && (
+                <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {/* Default Mascot Button */}
+                  <button 
+                    onClick={() => setSelectedEmoji(null)}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === null ? 'bg-white text-black ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                  >
+                    🐮
+                  </button>
+                  
+                  {/* Smart Emoji List */}
+                  {(isProfit 
+                    ? ['🚀','💎','🐂','🤑','🌕','📈','💰','🏦','😎','🏎️'] 
+                    : ['😭','🤡','🐻','💀','📉','🥀','💸','🚑','🚽','🛑']
+                  ).map(emoji => (
+                    <button 
+                      key={emoji}
+                      onClick={() => setSelectedEmoji(emoji)}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === emoji ? 'bg-white text-black' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                  
+                  {/* Custom Input */}
+                  <input 
+                     type="text" 
+                     placeholder="+"
+                     maxLength={2}
+                     className="w-10 h-10 rounded-lg bg-black border border-zinc-700 text-center text-xl focus:border-green-500 outline-none text-white"
+                     onChange={(e) => setSelectedEmoji(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
 
             <button 
