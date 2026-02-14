@@ -28,11 +28,13 @@ export default function Home() {
   // Lang State
   const [lang, setLang] = useState<'en' | 'cn'>('en');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load Language Preference
   useEffect(() => {
     const savedLang = localStorage.getItem('tradeflex-lang') as 'en' | 'cn';
     if (savedLang) setLang(savedLang);
+    setIsLoaded(true);
   }, []);
 
   const changeLang = (newLang: 'en' | 'cn') => {
@@ -188,6 +190,8 @@ export default function Home() {
   };
 
   const text = t[lang];
+
+  if (!isLoaded) return null; // Prevent flash of wrong language
 
   return (
     <main className="min-h-screen bg-black text-white font-sans p-4 md:p-8 relative selection:bg-green-500/30">
