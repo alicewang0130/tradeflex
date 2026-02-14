@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeFlex - Show Your PnL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --accent-green: #00e676; /* Winning Green */
+            --accent-red: #ff1744;   /* Losing Red */
+            --card-bg: #1e1e1e;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-weight: 900;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #00e676, #ff1744);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Input Form */
+        .form-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #aaa;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #2c2c2c;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box; /* Fix padding issue */
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--accent-green), #00c853);
+            border: none;
+            border-radius: 8px;
+            color: black;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Preview Canvas */
+        .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 300px;
+        }
+
+        #poster {
+            width: 360px; /* Instagram Story width ratio */
+            height: 640px;
+            background-color: #000;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        /* Poster Elements */
+        .poster-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.15;
+            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            z-index: 1;
+        }
+
+        .poster-content {
+            z-index: 10;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .ticker {
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .pnl {
+            font-size: 5rem;
+            font-weight: 900;
+            margin: 20px 0;
+            line-height: 1;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .details {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 40px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .emoji-burst {
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.1;
+            z-index: 2;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #downloadBtn {
+            margin-top: 20px;
+            background-color: #333;
+            color: white;
+            font-size: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🚀 TradeFlex</h1>
+    <p>Generate your flex. Share the win.</p>
+
+    <div class="container">
+        <!-- Input Form -->
+        <div class="form-section">
+            <div class="form-group">
+                <label>Ticker Symbol</label>
+                <input type="text" id="ticker" placeholder="e.g. TSLA" oninput="updatePoster()">
+            </div>
+            <div class="form-group">
+                <label>Position Type</label>
+                <select id="type" onchange="updatePoster()">
+                    <option value="LONG">Long (Buy)</option>
+                    <option value="SHORT">Short (Sell)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Entry Price ($)</label>
+                <input type="number" id="entry" placeholder="100.00" oninput="updatePoster()">
+            </div>
+            <div class="form-group">
+                <label>Exit Price ($)</label>
+                <input type="number" id="exit" placeholder="150.00" oninput="updatePoster()">
+            </div>
+            
+            <button onclick="downloadPoster()">📸 Save Image</button>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-section">
+            <div id="poster">
+                <div class="poster-bg"></div>
+                <div class="emoji-burst" id="emoji">🚀</div>
+                
+                <div class="poster-content">
+                    <h2 class="ticker" id="displayTicker">TSLA</h2>
+                    <div class="pnl" id="displayPnL">+50.0%</div>
+                    <div class="details">
+                        <span id="displayEntry">Entry: $100.00</span><br>
+                        <span id="displayExit">Exit: $150.00</span>
+                    </div>
+                </div>
+
+                <div class="footer">Verified by TradeFlex</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function updatePoster() {
+            const ticker = document.getElementById('ticker').value.toUpperCase() || 'TICKER';
+            const type = document.getElementById('type').value;
+            const entry = parseFloat(document.getElementById('entry').value) || 0;
+            const exit = parseFloat(document.getElementById('exit').value) || 0;
+            
+            // Calculate PnL
+            let pnl = 0;
+            let percent = 0;
+
+            if (entry > 0 && exit > 0) {
+                if (type === 'LONG') {
+                    pnl = exit - entry;
+                    percent = ((exit - entry) / entry) * 100;
+                } else {
+                    pnl = entry - exit;
+                    percent = ((entry - exit) / entry) * 100;
+                }
+            }
+
+            // Update UI
+            document.getElementById('displayTicker').innerText = ticker;
+            document.getElementById('displayEntry').innerText = `Entry: $${entry.toFixed(2)}`;
+            document.getElementById('displayExit').innerText = `Exit: $${exit.toFixed(2)}`;
+
+            const pnlEl = document.getElementById('displayPnL');
+            const posterEl = document.getElementById('poster');
+            const emojiEl = document.getElementById('emoji');
+
+            // Style based on Win/Loss
+            if (percent >= 0) {
+                pnlEl.innerText = `+${percent.toFixed(1)}%`;
+                pnlEl.style.color = '#00e676'; // Green
+                posterEl.style.background = 'linear-gradient(135deg, #1a2a1a 0%, #000 100%)';
+                posterEl.style.boxShadow = '0 10px 40px rgba(0, 230, 118, 0.2)';
+                emojiEl.innerText = '🚀';
+            } else {
+                pnlEl.innerText = `${percent.toFixed(1)}%`;
+                pnlEl.style.color = '#ff1744'; // Red
+                posterEl.style.background = 'linear-gradient(135deg, #2a1a1a 0%, #000 100%)';
+                posterEl.style.boxShadow = '0 10px 40px rgba(255, 23, 68, 0.2)';
+                emojiEl.innerText = '📉';
+            }
+        }
+
+        function downloadPoster() {
+            const poster = document.getElementById('poster');
+            html2canvas(poster).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `TradeFlex-${document.getElementById('ticker').value}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // Init
+        updatePoster();
+    </script>
+</body>
+</html>
