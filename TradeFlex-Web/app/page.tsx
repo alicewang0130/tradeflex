@@ -714,7 +714,7 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
+        <div id="oracle-section" className="w-full bg-zinc-900/80 scroll-mt-20 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
           <div className="flex justify-between items-center mb-1">
             <h3 className="font-black text-zinc-400 text-sm tracking-widest">{text.oracleTitle}</h3>
             <span className="text-green-500 font-bold text-sm animate-pulse">● {text.live}</span>
@@ -763,7 +763,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div id="generate-section" className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-start relative z-10">
+      <div id="flex-section" className="max-w-6xl scroll-mt-20 mx-auto grid lg:grid-cols-2 gap-12 items-start relative z-10">
         
         <div className="space-y-8">
           <div className="space-y-2">
@@ -1157,7 +1157,7 @@ export default function Home() {
         <ReferralBanner user={user} />
       </div>
 
-      <section id="leaderboard" className="max-w-6xl mx-auto mt-24 mb-12 relative z-10">
+      <section id="leaderboard-section" className="max-w-6xl mx-auto mt-24 scroll-mt-20 mb-12 relative z-10">
         <h2 className="text-3xl font-black italic tracking-tighter mb-8 text-center">
           {text.hallOfFame}
         </h2>
@@ -1244,9 +1244,9 @@ export default function Home() {
           <div>
             <h4 className="font-bold text-sm text-white mb-3">{text.footerFeatures}</h4>
             <ul className="space-y-2 text-xs text-zinc-500">
-              <li className="hover:text-white transition cursor-pointer">📊 {text.footerTradeCard}</li>
-              <li className="hover:text-white transition cursor-pointer">🔮 {text.footerOracle}</li>
-              <li className="hover:text-white transition cursor-pointer">🏆 {text.footerLeaderboard}</li>
+              <li><a href="#flex-section" className="hover:text-white transition">📊 {text.footerTradeCard}</a></li>
+              <li><a href="#oracle-section" className="hover:text-white transition">🔮 {text.footerOracle}</a></li>
+              <li><a href="#leaderboard-section" className="hover:text-white transition">🏆 {text.footerLeaderboard}</a></li>
               <li><a href="/community" className="hover:text-white transition">💬 {text.footerCommunity}</a></li>
               <li className="hover:text-white transition cursor-pointer">📱 {text.footerIOS}</li>
             </ul>
@@ -1256,9 +1256,9 @@ export default function Home() {
           <div>
             <h4 className="font-bold text-sm text-white mb-3">{text.footerCompany}</h4>
             <ul className="space-y-2 text-xs text-zinc-500">
-              <li><a href="#" className="hover:text-white transition">{text.footerAboutUs}</a></li>
-              <li><a href="#" className="hover:text-white transition">{text.footerPrivacy}</a></li>
-              <li><a href="#" className="hover:text-white transition">{text.footerTerms}</a></li>
+              <li><a href="/about" className="hover:text-white transition">{text.footerAboutUs}</a></li>
+              <li><a href="/privacy" className="hover:text-white transition">{text.footerPrivacy}</a></li>
+              <li><a href="/terms" className="hover:text-white transition">{text.footerTerms}</a></li>
               <li><a href="mailto:support@tradeflex.app" className="hover:text-white transition">{text.footerContact}</a></li>
             </ul>
           </div>
