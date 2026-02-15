@@ -367,6 +367,8 @@ export default function Home() {
       quantity: "QUANTITY",
       pnl: "P/L ($)",
       generate: "GENERATE IMAGE",
+      customBg: "Custom Background",
+      changeBg: "Change Background",
       verified: "VERIFIED BY TRADEFLEX",
       hallOfFame: "HALL OF FAME 🏆",
       mooners: "MOONERS 🚀",
@@ -429,6 +431,8 @@ export default function Home() {
       quantity: "持仓数量",
       pnl: "盈亏金额",
       generate: "生成海报",
+      customBg: "自定义背景",
+      changeBg: "更换背景",
       verified: "TRADEFLEX 认证",
       hallOfFame: "名人堂 🏆",
       mooners: "赢家榜 🚀",
@@ -870,7 +874,7 @@ export default function Home() {
                     }}
                   />
                   <div className="w-full bg-zinc-800 border border-zinc-700 text-white font-bold py-3 rounded-xl text-sm text-center hover:bg-zinc-700 transition flex items-center justify-center gap-2">
-                    🖼️ {customBg ? 'Change Background' : 'Custom Background'}
+                    🖼️ {customBg ? text.changeBg : text.customBg}
                   </div>
                 </label>
                 {customBg && (
