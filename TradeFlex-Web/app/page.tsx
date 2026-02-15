@@ -13,6 +13,8 @@ import { toPng } from 'html-to-image';
 import { supabase } from './supabase';
 import type { User } from '@supabase/supabase-js';
 import { isAdmin } from './lib/admin';
+import NotificationBell from './components/NotificationBell';
+import GlobalSearch from './components/GlobalSearch';
 
 export default function Home() {
   const [ticker, setTicker] = useState('TSLA');
@@ -264,8 +266,12 @@ export default function Home() {
               ticker,
               instrument,
               position_type: type,
+              entry_price: entryNum || null,
+              exit_price: exitNum || null,
+              quantity: quantityNum || null,
               pnl_percent: pnlPercent,
               pnl_amount: pnlAmount || null,
+              status: status,
             }).then(() => {});
           }
 
@@ -427,18 +433,23 @@ export default function Home() {
             </button>
           </div>
           
-          <nav className="hidden md:flex items-center gap-6 text-sm font-black text-zinc-400">
+          <nav className="hidden md:flex items-center gap-4 text-sm font-black text-zinc-400">
             <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
             <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
             <a href="/community" className="hover:text-white transition">COMMUNITY</a>
             
-            <div className="border-l border-zinc-800 pl-5 flex items-center gap-2">
+            <div className="w-40">
+              <GlobalSearch />
+            </div>
+            
+            <div className="border-l border-zinc-800 pl-4 flex items-center gap-2">
+              <NotificationBell user={user} />
               {user ? (
                 <div className="flex items-center gap-2">
                   {isAdmin(user.email) && (
                     <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition" title="Admin Panel">⚙️</a>
                   )}
-                  <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
+                  <a href={`/profile/${user.email?.split('@')[0]}`} className="text-green-400 font-bold hover:text-green-300 transition">{user.email?.split('@')[0]}</a>
                   <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
                     <LogOut className="w-4 h-4" />
                   </button>
