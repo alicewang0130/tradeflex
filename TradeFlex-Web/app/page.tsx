@@ -427,38 +427,30 @@ export default function Home() {
             </button>
           </div>
           
-          <nav className="hidden md:flex flex-col gap-2">
-            {/* Row 1: Main nav + auth */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-6 text-sm font-black text-zinc-400">
-                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white hover:text-white transition">ORACLE</button>
-                <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
-                <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
-                <a href="/community" className="hover:text-white transition">COMMUNITY</a>
-              </div>
-              
-              <div className="flex items-center gap-3 text-sm font-black text-zinc-400">
-                {user ? (
-                  <div className="flex items-center gap-2">
-                    {isAdmin(user.email) && (
-                      <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition" title="Admin Panel">⚙️ Manage</a>
-                    )}
-                    <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
-                    <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
-                      <LogOut className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <a href="/login" className="hover:text-white transition">LOG IN</a>
-                    <span>/</span>
-                    <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
-                  </>
-                )}
-                <button className="bg-white text-black px-4 py-1.5 rounded-full font-bold text-xs hover:bg-gray-200 transition whitespace-nowrap ml-2">
-                  {text.downloadApp}
-                </button>
-              </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-black text-zinc-400">
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white hover:text-white transition">ORACLE</button>
+            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
+            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
+            <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+            
+            <div className="border-l border-zinc-800 pl-5 flex items-center gap-2">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  {isAdmin(user.email) && (
+                    <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition" title="Admin Panel">⚙️</a>
+                  )}
+                  <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
+                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <a href="/login" className="hover:text-white transition">LOG IN</a>
+                  <span>/</span>
+                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                </>
+              )}
             </div>
           </nav>
           
@@ -485,9 +477,6 @@ export default function Home() {
               )}
             </div>
 
-            <button className="bg-white text-black px-3 py-1.5 rounded-full font-bold text-xs hover:bg-gray-200 transition whitespace-nowrap md:hidden">
-              {text.downloadApp}
-            </button>
           </div>
         </div>
 
@@ -914,6 +903,28 @@ export default function Home() {
           {text.downloadApp}
         </button>
       </div>
+
+      {/* Footer */}
+      <footer className="hidden md:block border-t border-zinc-800 mt-24 py-10 relative z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 text-zinc-500">
+            <Rocket className="w-4 h-4 -rotate-45" />
+            <span className="text-sm font-bold">TRADEFLEX</span>
+            <span className="text-xs">© 2026</span>
+          </div>
+          <div className="flex items-center gap-6 text-xs font-bold text-zinc-500">
+            <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+            <span className="text-zinc-700">|</span>
+            <a href="#" className="hover:text-white transition">PRIVACY</a>
+            <span className="text-zinc-700">|</span>
+            <a href="#" className="hover:text-white transition">TERMS</a>
+            <span className="text-zinc-700">|</span>
+            <button className="bg-white text-black px-5 py-2 rounded-full font-bold text-xs hover:bg-gray-200 transition">
+              {text.downloadApp}
+            </button>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
