@@ -14,6 +14,7 @@ import { supabase } from './supabase';
 import type { User } from '@supabase/supabase-js';
 import { isAdmin } from './lib/admin';
 import NotificationBell from './components/NotificationBell';
+import ReferralBanner from './components/ReferralBanner';
 import GlobalSearch from './components/GlobalSearch';
 import { usePro } from './lib/usePro';
 
@@ -256,6 +257,10 @@ export default function Home() {
     }
   };
 
+  // Share state
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+
   const handleGenerate = async () => {
     const preview = document.getElementById('preview-card');
     if (preview) {
@@ -287,7 +292,11 @@ export default function Home() {
             }).then(() => {});
           }
 
-          // Direct download
+          // Save for sharing
+          setGeneratedImageUrl(dataUrl);
+          setShowShareMenu(true);
+
+          // Also download
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = fileName;
@@ -297,6 +306,27 @@ export default function Home() {
         }
       }, 500);
     }
+  };
+
+  const shareToTwitter = () => {
+    const sign = pnlPercent >= 0 ? '+' : '';
+    const emoji = pnlPercent >= 0 ? '🚀📈' : '💀📉';
+    const tweetText = `$${ticker} ${sign}${pnlPercent.toFixed(2)}% ${emoji}\n\nMade with @TradeFlex_app\n#TradeFlex #Stocks #Trading`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent('https://tradeflex.app')}`;
+    window.open(url, '_blank');
+  };
+
+  const shareToReddit = () => {
+    const sign = pnlPercent >= 0 ? '+' : '';
+    const title = `$${ticker} ${sign}${pnlPercent.toFixed(2)}% — Made with TradeFlex`;
+    const url = `https://www.reddit.com/submit?title=${encodeURIComponent(title)}&url=${encodeURIComponent('https://tradeflex.app')}`;
+    window.open(url, '_blank');
+  };
+
+  const copyShareLink = async () => {
+    const sign = pnlPercent >= 0 ? '+' : '';
+    const text = `$${ticker} ${sign}${pnlPercent.toFixed(2)}% — Check out TradeFlex: https://tradeflex.app`;
+    await navigator.clipboard.writeText(text);
   };
 
   // --- TRANSLATIONS ---
@@ -809,6 +839,35 @@ export default function Home() {
               <Download className="w-5 h-5" />
               {text.generate}
             </button>
+
+            {/* Share Menu — appears after generating */}
+            {showShareMenu && (
+              <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-bottom-2">
+                <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Share your flex</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={shareToTwitter}
+                    className="flex items-center justify-center gap-2 bg-black border border-zinc-700 text-white font-bold py-3 rounded-xl text-sm hover:bg-zinc-800 transition"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    Post to X
+                  </button>
+                  <button
+                    onClick={shareToReddit}
+                    className="flex items-center justify-center gap-2 bg-[#FF4500]/10 border border-[#FF4500]/30 text-[#FF4500] font-bold py-3 rounded-xl text-sm hover:bg-[#FF4500]/20 transition"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+                    Reddit
+                  </button>
+                </div>
+                <button
+                  onClick={copyShareLink}
+                  className="w-full flex items-center justify-center gap-2 bg-zinc-800 border border-zinc-700 text-white/70 font-bold py-3 rounded-xl text-sm hover:bg-zinc-700 hover:text-white transition"
+                >
+                  📋 Copy Link & Text
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -915,6 +974,11 @@ export default function Home() {
           </button>
         </div>
 
+      </div>
+
+      {/* Referral Banner */}
+      <div className="max-w-6xl mx-auto mt-12 px-4 relative z-10">
+        <ReferralBanner user={user} />
       </div>
 
       <section id="leaderboard" className="max-w-6xl mx-auto mt-24 mb-12 relative z-10">
