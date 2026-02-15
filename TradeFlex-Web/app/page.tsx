@@ -922,11 +922,11 @@ export default function Home() {
         </div>
       </section>
       {/* Footer */}
-      <footer className="hidden md:block border-t border-zinc-800 mt-24 relative z-10">
+      <footer className="border-t border-zinc-800 mt-24 relative z-10">
         {/* About / Features / Links section */}
-        <div className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="max-w-5xl mx-auto px-4 py-10 md:py-12 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <Rocket className="w-5 h-5 text-green-500 -rotate-45" />
               <span className="font-black text-lg bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">TRADEFLEX</span>
@@ -971,7 +971,7 @@ export default function Home() {
           </div>
 
           {/* Newsletter / CTA */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="font-bold text-sm text-white mb-3">Stay Updated</h4>
             <p className="text-xs text-zinc-500 mb-3">Get weekly market insights and new features.</p>
             <div className="flex gap-2">
