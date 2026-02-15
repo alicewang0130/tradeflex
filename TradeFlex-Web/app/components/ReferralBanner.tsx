@@ -26,7 +26,7 @@ export default function ReferralBanner({ user }: { user: User | null }) {
   };
 
   return (
-    <div className="relative bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-4 md:p-5">
+    <div className="relative bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 rounded-2xl p-4 md:p-5">
       <button 
         onClick={() => setDismissed(true)}
         className="absolute top-3 right-3 text-white/30 hover:text-white/60 transition"
@@ -34,8 +34,8 @@ export default function ReferralBanner({ user }: { user: User | null }) {
         <X size={16} />
       </button>
       <div className="flex items-start gap-3">
-        <div className="bg-purple-500/20 p-2 rounded-xl shrink-0">
-          <Gift size={20} className="text-purple-400" />
+        <div className="bg-yellow-500/20 p-2 rounded-xl shrink-0">
+          <Gift size={20} className="text-yellow-400" />
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-bold text-sm text-white mb-1">Invite Friends, Get Pro Free 🎁</h4>
@@ -48,7 +48,7 @@ export default function ReferralBanner({ user }: { user: User | null }) {
             </div>
             <button
               onClick={handleCopy}
-              className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1 shrink-0"
+              className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1 shrink-0"
             >
               {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
             </button>
