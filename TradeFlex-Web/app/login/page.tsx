@@ -29,6 +29,23 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const checkBanned = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('banned')
+      .eq('id', user.id)
+      .single();
+    if (profile?.banned) {
+      await supabase.auth.signOut();
+      setError('Your account has been suspended. Contact support.');
+      setLoading(false);
+      return true;
+    }
+    return false;
+  };
+
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -67,6 +84,9 @@ export default function Login() {
         });
         if (error) throw error;
       }
+      // Check if user is banned
+      const banned = await checkBanned();
+      if (banned) return;
       router.push('/');
     } catch (err: any) {
       setError(err.message);

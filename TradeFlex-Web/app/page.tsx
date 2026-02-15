@@ -35,9 +35,20 @@ export default function Home() {
   const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
+        // Check if banned
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('banned')
+          .eq('id', user.id)
+          .single();
+        if (profile?.banned) {
+          await supabase.auth.signOut();
+          setUser(null);
+          return;
+        }
+        setUser(user);
         // Restore user's language preference
         const userLang = user.user_metadata?.lang as 'en' | 'cn' | undefined;
         if (userLang) {
@@ -52,10 +63,21 @@ export default function Home() {
         setTimeout(() => setShowWelcome(false), 10000);
       }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const newUser = session?.user ?? null;
-      setUser(newUser);
       if (event === 'SIGNED_IN' && newUser) {
+        // Check if banned
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('banned')
+          .eq('id', newUser.id)
+          .single();
+        if (profile?.banned) {
+          await supabase.auth.signOut();
+          setUser(null);
+          return;
+        }
+        setUser(newUser);
         // Restore user's language preference
         const userLang = newUser.user_metadata?.lang as 'en' | 'cn' | undefined;
         if (userLang) {
@@ -68,6 +90,8 @@ export default function Home() {
         setIsNewUser(isNew);
         setShowWelcome(true);
         setTimeout(() => setShowWelcome(false), 10000);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
       }
     });
     return () => subscription.unsubscribe();
@@ -103,6 +127,64 @@ export default function Home() {
   const [bullCount, setBullCount] = useState(69420);
   const [bearCount, setBearCount] = useState(31000);
   const [voted, setVoted] = useState<'bull' | 'bear' | null>(null);
+
+  // Leaderboard State
+  interface LeaderboardEntry {
+    rank: number;
+    user: string;
+    ticker: string;
+    pnl: string;
+    icon: string;
+    position: string;
+  }
+
+  const defaultMooners: LeaderboardEntry[] = [
+    { rank: 1, user: 'DeepFuckingValue', ticker: 'GME', pnl: '+42069%', icon: '👑', position: 'LONG' },
+    { rank: 2, user: 'NancyP', ticker: 'NVDA', pnl: '+500%', icon: '🧠', position: 'LONG' },
+    { rank: 3, user: 'CryptoWhale', ticker: 'PEPE', pnl: '+69%', icon: '🐋', position: 'LONG' },
+    { rank: 4, user: 'CathieWood', ticker: 'COIN', pnl: '+45%', icon: '🌲', position: 'LONG' },
+    { rank: 5, user: 'ElonMusk', ticker: 'DOGE', pnl: '+42%', icon: '🐶', position: 'LONG' },
+  ];
+
+  const defaultRekt: LeaderboardEntry[] = [
+    { rank: 1, user: 'FTX_User', ticker: 'FTT', pnl: '-100%', icon: '🔥', position: 'CALL' },
+    { rank: 2, user: 'WSB_Degens', ticker: 'BBBY', pnl: '-99%', icon: '🦍', position: 'CALL' },
+    { rank: 3, user: 'BillHwang', ticker: 'VIAC', pnl: '-90%', icon: '🐅', position: 'CALL' },
+    { rank: 4, user: 'JimCramer', ticker: 'META', pnl: '-85%', icon: '📢', position: 'CALL' },
+    { rank: 5, user: 'LoganPaul', ticker: 'ZOO', pnl: '-78%', icon: '🥊', position: 'CALL' },
+  ];
+
+  const [mooners, setMooners] = useState<LeaderboardEntry[]>(defaultMooners);
+  const [rektList, setRektList] = useState<LeaderboardEntry[]>(defaultRekt);
+
+  // Fetch real leaderboard data
+  useEffect(() => {
+    fetch('/api/leaderboard')
+      .then(res => res.json())
+      .then(data => {
+        if (data.mooners?.length > 0) {
+          setMooners(data.mooners.map((item: any, i: number) => ({
+            rank: i + 1,
+            user: item.profiles?.display_name || 'Anonymous',
+            ticker: item.ticker,
+            pnl: `+${item.pnl_percent.toFixed(0)}%`,
+            icon: ['👑', '🧠', '🐋', '🌲', '🐶'][i] || '🚀',
+            position: item.position_type,
+          })));
+        }
+        if (data.rekt?.length > 0) {
+          setRektList(data.rekt.map((item: any, i: number) => ({
+            rank: i + 1,
+            user: item.profiles?.display_name || 'Anonymous',
+            ticker: item.ticker,
+            pnl: `${item.pnl_percent.toFixed(0)}%`,
+            icon: ['🔥', '🦍', '🐅', '📢', '🥊'][i] || '💀',
+            position: item.position_type,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // --- CALCULATIONS ---
   const entryNum = parseFloat(entry) || 0;
@@ -151,6 +233,13 @@ export default function Home() {
     setVoted(side);
     if (side === 'bull') setBullCount(prev => prev + 1);
     else setBearCount(prev => prev + 1);
+    // Save vote to Supabase
+    if (user) {
+      supabase.from('oracle_votes').insert({
+        user_id: user.id,
+        vote: side,
+      }).then(() => {});
+    }
   };
 
   const handleGenerate = async () => {
@@ -168,7 +257,19 @@ export default function Home() {
 
           const fileName = `TradeFlex-${ticker}-${pnlPercent.toFixed(2)}%.png`;
 
-          // Direct download — on iPhone opens image in new tab for easy save
+          // Track flex in Supabase
+          if (user) {
+            supabase.from('flexes').insert({
+              user_id: user.id,
+              ticker,
+              instrument,
+              position_type: type,
+              pnl_percent: pnlPercent,
+              pnl_amount: pnlAmount || null,
+            }).then(() => {});
+          }
+
+          // Direct download
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = fileName;
@@ -750,13 +851,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-4">
                <h3 className="text-xl font-black text-green-500 flex items-center gap-2">MOONERS 🚀</h3>
             </div>
-            {[
-              { rank: 1, user: 'DeepFuckingValue', ticker: 'GME', pnl: '+42069%', icon: '👑' },
-              { rank: 2, user: 'NancyP', ticker: 'NVDA', pnl: '+500%', icon: '🧠' },
-              { rank: 3, user: 'CryptoWhale', ticker: 'PEPE', pnl: '+69%', icon: '🐋' },
-              { rank: 4, user: 'CathieWood', ticker: 'COIN', pnl: '+45%', icon: '🌲' },
-              { rank: 5, user: 'ElonMusk', ticker: 'DOGE', pnl: '+42%', icon: '🐶' },
-            ].map((item) => (
+            {mooners.map((item) => (
               <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-green-500/50 transition cursor-pointer group">
                 <div className="w-8 font-black text-zinc-600 text-lg">#{item.rank}</div>
                 <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition">
@@ -767,11 +862,10 @@ export default function Home() {
                     @{item.user}
                     <span className="text-[10px] bg-green-900/50 text-green-400 px-1.5 py-0.5 rounded border border-green-900">PRO</span>
                   </div>
-                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} LONG</div>
+                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} {item.position || 'LONG'}</div>
                 </div>
                 <div className="text-right">
                   <div className="font-black text-xl text-green-500">{item.pnl}</div>
-                  <div className="text-[10px] text-zinc-500">2m ago</div>
                 </div>
               </div>
             ))}
@@ -782,13 +876,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-4">
                <h3 className="text-xl font-black text-red-500 flex items-center gap-2">REKT 💀</h3>
             </div>
-            {[
-              { rank: 1, user: 'FTX_User', ticker: 'FTT', pnl: '-100%', icon: '🔥' },
-              { rank: 2, user: 'WSB_Degens', ticker: 'BBBY', pnl: '-99%', icon: '🦍' },
-              { rank: 3, user: 'BillHwang', ticker: 'VIAC', pnl: '-90%', icon: '🐅' },
-              { rank: 4, user: 'JimCramer', ticker: 'META', pnl: '-85%', icon: '📢' },
-              { rank: 5, user: 'LoganPaul', ticker: 'ZOO', pnl: '-78%', icon: '🥊' },
-            ].map((item) => (
+            {rektList.map((item) => (
               <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-red-500/50 transition cursor-pointer group">
                 <div className="w-8 font-black text-zinc-600 text-lg">#{item.rank}</div>
                 <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition">
@@ -799,11 +887,10 @@ export default function Home() {
                     @{item.user}
                     <span className="text-[10px] bg-red-900/50 text-red-400 px-1.5 py-0.5 rounded border border-red-900">YOLO</span>
                   </div>
-                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} CALL</div>
+                  <div className="text-xs text-zinc-500 font-mono">{item.ticker} {item.position || 'CALL'}</div>
                 </div>
                 <div className="text-right">
                   <div className="font-black text-xl text-red-500">{item.pnl}</div>
-                  <div className="text-[10px] text-zinc-500">5m ago</div>
                 </div>
               </div>
             ))}
