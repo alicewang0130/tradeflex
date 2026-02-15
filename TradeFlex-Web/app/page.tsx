@@ -444,6 +444,7 @@ export default function Home() {
             <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
             <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
             <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+            <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">PRO ✨</a>
             
             <div className="w-40">
               <GlobalSearch />
@@ -498,6 +499,7 @@ export default function Home() {
           <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
           <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
           <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+          <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">PRO ✨</a>
           <button className="bg-white text-black px-3 py-1 rounded-full font-bold text-[10px] hover:bg-gray-200 transition whitespace-nowrap ml-auto">
             {text.downloadApp}
           </button>

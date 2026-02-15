@@ -63,6 +63,19 @@ ALTER TABLE flexes ADD COLUMN IF NOT EXISTS exit_price NUMERIC;
 ALTER TABLE flexes ADD COLUMN IF NOT EXISTS quantity NUMERIC;
 ALTER TABLE flexes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'CLOSED';
 
+-- 7. Subscriptions (Pro membership)
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  plan TEXT NOT NULL CHECK (plan IN ('monthly', 'yearly')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'expired')),
+  stripe_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  starts_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================
 -- Indexes for performance
 -- ============================================
@@ -74,6 +87,7 @@ CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
 CREATE INDEX IF NOT EXISTS idx_follows_following ON follows(following_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_flexes_user ON flexes(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id, status);
 
 -- ============================================
 -- Row Level Security (RLS)
@@ -100,6 +114,10 @@ CREATE POLICY "Users can unfollow" ON follows FOR DELETE USING (auth.uid() = fol
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own notifications" ON notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can update own notifications" ON notifications FOR UPDATE USING (auth.uid() = user_id);
+
+-- Subscriptions: only own
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USING (auth.uid() = user_id);
 
 -- ============================================
 -- Done! 🚀
