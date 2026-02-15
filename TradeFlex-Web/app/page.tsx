@@ -8,8 +8,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share2, Download, Rocket } from 'lucide-react';
+import { Share2, Download, Rocket, LogOut } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { supabase } from './supabase';
+import type { User } from '@supabase/supabase-js';
 
 export default function Home() {
   const [ticker, setTicker] = useState('TSLA');
@@ -25,6 +27,22 @@ export default function Home() {
   const [strike, setStrike] = useState('');
   const [expiry, setExpiry] = useState('');
   const [optionType, setOptionType] = useState<'CALL' | 'PUT'>('CALL');
+
+  // Auth State
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   // Lang State
   const [lang, setLang] = useState<'en' | 'cn'>('en');
@@ -250,15 +268,51 @@ export default function Home() {
             </button>
           </div>
           
-          <nav className="hidden md:flex gap-6 text-sm font-bold text-gray-400">
-            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white">ORACLE</button>
-            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
+          <nav className="hidden md:flex gap-1 text-sm font-black text-zinc-400 items-center">
+            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">LEADERBOARD</button>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white mr-6">ORACLE</button>
+            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">CREATE</button>
+            
+            <div className="flex items-center gap-1 border-l border-zinc-800 pl-6">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-bold">{user.email?.split('@')[0]}</span>
+                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <a href="/login" className="hover:text-white transition">LOG IN</a>
+                  <span>/</span>
+                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                </>
+              )}
+            </div>
           </nav>
           
-          <button className="bg-white text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-gray-200 transition">
-            {text.downloadApp}
-          </button>
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="md:hidden flex gap-1 text-xs font-black tracking-wide text-zinc-400">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-white">{user.email?.split('@')[0]}</span>
+                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <a href="/login" className="hover:text-white transition">LOGIN</a>
+                  <span>/</span>
+                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                </>
+              )}
+            </div>
+
+            <button className="bg-white text-black px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm hover:bg-gray-200 transition whitespace-nowrap hidden sm:block">
+              {text.downloadApp}
+            </button>
+          </div>
         </div>
 
         <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
@@ -692,6 +746,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <div className="md:hidden fixed bottom-10 left-6 right-6 z-[100]">
+        <button className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-black py-3.5 rounded-full shadow-[0_0_30px_rgba(34,197,94,0.3)] border-2 border-green-400/80 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+          <Rocket className="w-5 h-5 text-black" />
+          {text.downloadApp}
+        </button>
+      </div>
     </main>
   );
 }
