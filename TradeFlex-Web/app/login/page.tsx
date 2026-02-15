@@ -11,6 +11,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Rocket, Mail, Lock, Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -113,10 +114,14 @@ export default function Login() {
 
       <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800 backdrop-blur-md relative z-10 shadow-2xl">
         <div className="flex flex-col items-center mb-8">
-          <Rocket className="w-12 h-12 text-green-500 -rotate-45 mb-4" />
-          <h1 className="text-3xl font-black tracking-tighter bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-            TRADEFLEX
-          </h1>
+          <Link href="/">
+            <Rocket className="w-12 h-12 text-green-500 -rotate-45 mb-4 hover:scale-110 transition cursor-pointer" />
+          </Link>
+          <Link href="/" className="hover:opacity-80 transition">
+            <h1 className="text-3xl font-black tracking-tighter bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              TRADEFLEX
+            </h1>
+          </Link>
           <p className="text-zinc-500 mt-2 text-sm font-medium">
             {isRegister ? 'Join the Hall of Fame' : 'Welcome back, legend'}
           </p>
