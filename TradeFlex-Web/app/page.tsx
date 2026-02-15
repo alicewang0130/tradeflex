@@ -369,6 +369,7 @@ export default function Home() {
       generate: "GENERATE IMAGE",
       customBg: "Custom Background",
       changeBg: "Change Background",
+      logout: "Log out",
       verified: "VERIFIED BY TRADEFLEX",
       hallOfFame: "HALL OF FAME 🏆",
       mooners: "MOONERS 🚀",
@@ -433,6 +434,7 @@ export default function Home() {
       generate: "生成海报",
       customBg: "自定义背景",
       changeBg: "更换背景",
+      logout: "退出登录",
       verified: "TRADEFLEX 认证",
       hallOfFame: "名人堂 🏆",
       mooners: "赢家榜 🚀",
@@ -547,7 +549,7 @@ export default function Home() {
                     <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition" title="Admin Panel">⚙️</a>
                   )}
                   <a href={`/profile/${user.email?.split('@')[0]}`} className="text-green-400 font-bold hover:text-green-300 transition">{user.email?.split('@')[0]}</a>
-                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                  <button onClick={handleLogout} className="hover:text-red-400 transition" title={text.logout}>
                     <LogOut className="w-4 h-4" />
                   </button>
                 </div>
@@ -569,7 +571,7 @@ export default function Home() {
                     <a href="/admin" className="text-yellow-400" title="Admin">⚙️</a>
                   )}
                   <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
-                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                  <button onClick={handleLogout} className="hover:text-red-400 transition" title={text.logout}>
                     <LogOut className="w-3 h-3" />
                   </button>
                 </div>
