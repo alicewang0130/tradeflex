@@ -456,6 +456,8 @@ export default function Home() {
           
           <div className="flex items-center gap-2 md:gap-4">
             <div className="md:hidden flex gap-1 text-xs font-black tracking-wide text-zinc-400">
+              <a href="/community" className="hover:text-white transition">💬</a>
+              <span className="text-zinc-600">|</span>
               {user ? (
                 <div className="flex items-center gap-2">
                   {isAdmin(user.email) && (
