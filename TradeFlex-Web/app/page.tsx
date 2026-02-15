@@ -291,7 +291,7 @@ export default function Home() {
   const t = {
     en: {
       oracleTitle: "TODAY'S ORACLE 🔮",
-      oracleSubtitle: "Vote before market open (9:30 AM ET) — predict today's move!",
+      oracleSubtitle: "Vote before market open (9:30 AM ET) — predict today's market move!",
       live: "LIVE VOTING",
       bullish: "BULLISH",
       bearish: "BEARISH",
