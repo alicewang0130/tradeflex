@@ -374,7 +374,13 @@ export default function Home() {
       downloadApp: "Download App",
       unrealized: "UNREALIZED P/L",
       realized: "REALIZED P/L",
-      emoji: "CUSTOM EMOTION"
+      emoji: "CUSTOM EMOTION",
+      navLeaderboard: "LEADERBOARD",
+      navCreate: "CREATE",
+      navCommunity: "COMMUNITY",
+      navPro: "PRO",
+      navLogin: "LOG IN",
+      navJoin: "JOIN",
     },
     cn: {
       oracleTitle: "今日预言机 🔮",
@@ -413,7 +419,13 @@ export default function Home() {
       downloadApp: "下载APP",
       unrealized: "浮动盈亏 (Unrealized)",
       realized: "已实现盈亏 (Realized)",
-      emoji: "自定义表情"
+      emoji: "自定义表情",
+      navLeaderboard: "排行榜",
+      navCreate: "创建",
+      navCommunity: "社区",
+      navPro: "PRO",
+      navLogin: "登录",
+      navJoin: "注册",
     }
   };
 
@@ -484,10 +496,10 @@ export default function Home() {
           </div>
           
           <nav className="hidden md:flex items-center gap-4 text-sm font-black text-zinc-400">
-            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
-            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
-            <a href="/community" className="hover:text-white transition">COMMUNITY</a>
-            <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">PRO</a>
+            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">{text.navLeaderboard}</button>
+            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">{text.navCreate}</button>
+            <a href="/community" className="hover:text-white transition">{text.navCommunity}</a>
+            <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">{text.navPro}</a>
             
             <div className="border-l border-zinc-800 pl-4 flex items-center gap-2">
               <NotificationBell user={user} />
@@ -503,9 +515,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
-                  <a href="/login" className="hover:text-white transition">LOG IN</a>
+                  <a href="/login" className="hover:text-white transition">{text.navLogin}</a>
                   <span>/</span>
-                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">{text.navJoin}</a>
                 </div>
               )}
             </div>
@@ -525,9 +537,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="flex gap-1 text-xs font-black text-zinc-400">
-                  <a href="/login" className="hover:text-white transition">LOGIN</a>
+                  <a href="/login" className="hover:text-white transition">{text.navLogin}</a>
                   <span>/</span>
-                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">{text.navJoin}</a>
                 </div>
               )}
           </div>
@@ -535,10 +547,10 @@ export default function Home() {
 
         {/* Mobile: nav links row below logo */}
         <div className="md:hidden flex gap-4 text-xs font-black tracking-wide text-zinc-400 -mt-4 mb-2 items-center">
-          <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
-          <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
-          <a href="/community" className="hover:text-white transition">COMMUNITY</a>
-          <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">PRO</a>
+          <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">{text.navLeaderboard}</button>
+          <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">{text.navCreate}</button>
+          <a href="/community" className="hover:text-white transition">{text.navCommunity}</a>
+          <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">{text.navPro}</a>
           <button className="bg-white text-black px-3 py-1 rounded-full font-bold text-[10px] hover:bg-gray-200 transition whitespace-nowrap ml-auto">
             {text.downloadApp}
           </button>
