@@ -72,6 +72,7 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'hot' | 'new'>('hot');
   const [searchTicker, setSearchTicker] = useState('');
+  const [activeTicker, setActiveTicker] = useState<string | null>(null);
   const [showNewPost, setShowNewPost] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -102,7 +103,7 @@ export default function CommunityPage() {
   // Load posts
   useEffect(() => {
     loadPosts();
-  }, [sortBy, searchTicker]);
+  }, [sortBy, searchTicker, activeTicker]);
 
   async function loadPosts() {
     setLoading(true);
@@ -111,7 +112,9 @@ export default function CommunityPage() {
         .from('community_posts')
         .select('*');
 
-      if (searchTicker) {
+      if (activeTicker) {
+        query = query.eq('ticker', activeTicker);
+      } else if (searchTicker) {
         query = query.ilike('ticker', `%${searchTicker}%`);
       }
 
@@ -129,7 +132,13 @@ export default function CommunityPage() {
     } catch (err) {
       console.error('Failed to load posts:', err);
       // Use mock data if table doesn't exist yet
-      setPosts(getMockPosts());
+      let mockPosts = getMockPosts();
+      if (activeTicker) {
+        mockPosts = mockPosts.filter(p => p.ticker === activeTicker);
+      } else if (searchTicker) {
+        mockPosts = mockPosts.filter(p => p.ticker?.includes(searchTicker));
+      }
+      setPosts(mockPosts);
     }
     setLoading(false);
   }
@@ -375,11 +384,34 @@ export default function CommunityPage() {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
               <input
                 value={searchTicker}
-                onChange={e => setSearchTicker(e.target.value.toUpperCase())}
-                placeholder="Filter by ticker..."
+                onChange={e => { setSearchTicker(e.target.value.toUpperCase()); setActiveTicker(null); }}
+                placeholder="Search ticker..."
                 className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
               />
             </div>
+          </div>
+
+          {/* Ticker Tabs */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+            <button
+              onClick={() => { setActiveTicker(null); setSearchTicker(''); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${
+                !activeTicker ? 'bg-white/15 text-white' : 'bg-white/5 text-white/40 hover:text-white/70'
+              }`}
+            >
+              🔥 ALL
+            </button>
+            {['TSLA', 'AAPL', 'NVDA', 'GME', 'SPY', 'AMZN', 'META', 'MSFT', 'AMD', 'COIN'].map(t => (
+              <button
+                key={t}
+                onClick={() => { setActiveTicker(activeTicker === t ? null : t); setSearchTicker(''); }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold whitespace-nowrap transition ${
+                  activeTicker === t ? 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30' : 'bg-white/5 text-white/40 hover:text-white/70'
+                }`}
+              >
+                ${t}
+              </button>
+            ))}
           </div>
         </div>
       </div>
