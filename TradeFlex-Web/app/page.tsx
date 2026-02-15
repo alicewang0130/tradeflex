@@ -1329,12 +1329,12 @@ export default function Home() {
             <h3 className="text-xl font-black mb-2">Sign up to vote!</h3>
             <p className="text-white/50 text-sm mb-6">Join TradeFlex to predict the market and compete with other traders.</p>
             <div className="space-y-3">
-              <a href="/login?mode=signup" className="block w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded-xl transition text-center">
+              <button onClick={() => { setShowLoginPrompt(false); window.location.href = '/login?mode=signup'; }} className="block w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded-xl transition text-center">
                 Sign Up Free 🚀
-              </a>
-              <a href="/login" className="block w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition text-center">
+              </button>
+              <button onClick={() => { setShowLoginPrompt(false); window.location.href = '/login'; }} className="block w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition text-center">
                 I have an account
-              </a>
+              </button>
               <button onClick={() => setShowLoginPrompt(false)} className="text-white/30 text-sm hover:text-white/50 transition">
                 Maybe later
               </button>
