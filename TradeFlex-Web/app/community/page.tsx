@@ -89,6 +89,61 @@ export default function CommunityPage() {
   const [newComment, setNewComment] = useState('');
   const commentInputRef = useRef<HTMLInputElement>(null);
 
+  // Language
+  const [lang, setLang] = useState<'en' | 'cn'>('en');
+  useEffect(() => {
+    const saved = localStorage.getItem('tradeflex-lang') as 'en' | 'cn' | null;
+    if (saved) setLang(saved);
+  }, []);
+
+  const tr = {
+    en: {
+      community: '💬 Community',
+      discussion: 'Discussion',
+      newPost: 'New Post',
+      signInToPost: 'Sign In to Post',
+      hot: 'Hot',
+      new: 'New',
+      searchTicker: 'Search ticker...',
+      newDiscussion: 'New Discussion',
+      tickerPlaceholder: 'Ticker (optional)',
+      titlePlaceholder: "Title — what's on your mind?",
+      contentPlaceholder: 'Share your DD, thesis, or hot take...',
+      posting: 'Posting...',
+      postToCommunity: 'Post to Community 🚀',
+      noDiscussions: 'No discussions yet',
+      beFirst: 'Be the first to start a conversation! 🚀',
+      comments: 'comments',
+      signInToComment: 'Sign in',
+      toComment: 'to comment',
+      dropComment: 'Drop a comment... 💬',
+      noComments: 'No comments yet. Be the first! 🚀',
+    },
+    cn: {
+      community: '💬 社区',
+      discussion: '讨论',
+      newPost: '发帖',
+      signInToPost: '登录后发帖',
+      hot: '热门',
+      new: '最新',
+      searchTicker: '搜索股票代码...',
+      newDiscussion: '新帖子',
+      tickerPlaceholder: '股票代码（选填）',
+      titlePlaceholder: '标题 — 你在想什么？',
+      contentPlaceholder: '分享你的分析、观点或辣评...',
+      posting: '发布中...',
+      postToCommunity: '发布到社区 🚀',
+      noDiscussions: '还没有讨论',
+      beFirst: '成为第一个发帖的人！🚀',
+      comments: '条评论',
+      signInToComment: '登录',
+      toComment: '后评论',
+      dropComment: '写条评论... 💬',
+      noComments: '还没有评论，来抢沙发！🚀',
+    },
+  };
+  const text = tr[lang];
+
   // Auth
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -249,7 +304,7 @@ export default function CommunityPage() {
             <button onClick={() => setSelectedPost(null)} className="p-2 hover:bg-white/10 rounded-lg transition">
               <ArrowLeft size={20} />
             </button>
-            <h1 className="font-bold text-lg">Discussion</h1>
+            <h1 className="font-bold text-lg">{text.discussion}</h1>
           </div>
         </div>
 
@@ -278,7 +333,7 @@ export default function CommunityPage() {
                 <ThumbsUp size={16} /> {selectedPost.likes}
               </button>
               <span className="flex items-center gap-1 text-sm text-white/40">
-                <MessageCircle size={16} /> {selectedPost.comment_count} comments
+                <MessageCircle size={16} /> {selectedPost.comment_count} {text.comments}
               </span>
             </div>
           </div>
@@ -291,7 +346,7 @@ export default function CommunityPage() {
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleNewComment()}
-                placeholder="Drop a comment... 💬"
+                placeholder={text.dropComment}
                 className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
               />
               <button
@@ -304,7 +359,7 @@ export default function CommunityPage() {
             </div>
           ) : (
             <div className="text-center py-4 mb-6 text-white/40 text-sm">
-              <Link href="/login" className="text-green-400 hover:underline">Sign in</Link> to comment
+              <Link href="/login" className="text-green-400 hover:underline">{text.signInToComment}</Link> {text.toComment}
             </div>
           )}
 
@@ -312,7 +367,7 @@ export default function CommunityPage() {
           {commentsLoading ? (
             <div className="flex justify-center py-8"><Loader2 className="animate-spin text-white/30" size={24} /></div>
           ) : comments.length === 0 ? (
-            <div className="text-center py-8 text-white/30 text-sm">No comments yet. Be the first! 🚀</div>
+            <div className="text-center py-8 text-white/30 text-sm">{text.noComments}</div>
           ) : (
             <div className="space-y-3">
               {comments.map(comment => (
@@ -345,7 +400,7 @@ export default function CommunityPage() {
                 <ArrowLeft size={20} />
               </Link>
               <h1 className="text-xl font-black tracking-tight">
-                💬 Community
+                {text.community}
               </h1>
             </div>
             <div className="flex items-center gap-2">
@@ -354,11 +409,11 @@ export default function CommunityPage() {
                   onClick={() => setShowNewPost(true)}
                   className="bg-green-500 hover:bg-green-600 text-black font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-1 transition"
                 >
-                  <Plus size={16} /> New Post
+                  <Plus size={16} /> {text.newPost}
                 </button>
               ) : (
                 <Link href="/login" className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm transition">
-                  Sign In to Post
+                  {text.signInToPost}
                 </Link>
               )}
             </div>
@@ -371,13 +426,13 @@ export default function CommunityPage() {
                 onClick={() => setSortBy('hot')}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition ${sortBy === 'hot' ? 'bg-orange-500/20 text-orange-400' : 'text-white/50 hover:text-white/70'}`}
               >
-                <Flame size={14} /> Hot
+                <Flame size={14} /> {text.hot}
               </button>
               <button
                 onClick={() => setSortBy('new')}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition ${sortBy === 'new' ? 'bg-blue-500/20 text-blue-400' : 'text-white/50 hover:text-white/70'}`}
               >
-                <Clock size={14} /> New
+                <Clock size={14} /> {text.new}
               </button>
             </div>
             <div className="relative flex-1 max-w-xs">
@@ -385,7 +440,7 @@ export default function CommunityPage() {
               <input
                 value={searchTicker}
                 onChange={e => { setSearchTicker(e.target.value.toUpperCase()); setActiveTicker(null); }}
-                placeholder="Search ticker..."
+                placeholder={text.searchTicker}
                 className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
               />
             </div>
@@ -422,8 +477,8 @@ export default function CommunityPage() {
           <div className="flex justify-center py-12"><Loader2 className="animate-spin text-white/30" size={32} /></div>
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-white/30 text-lg mb-2">No discussions yet</p>
-            <p className="text-white/20 text-sm">Be the first to start a conversation! 🚀</p>
+            <p className="text-white/30 text-lg mb-2">{text.noDiscussions}</p>
+            <p className="text-white/20 text-sm">{text.beFirst}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -469,7 +524,7 @@ export default function CommunityPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">New Discussion</h2>
+              <h2 className="text-lg font-bold">{text.newDiscussion}</h2>
               <button onClick={() => setShowNewPost(false)} className="p-1 hover:bg-white/10 rounded-lg transition">
                 <X size={20} />
               </button>
@@ -481,7 +536,7 @@ export default function CommunityPage() {
                 <input
                   value={newTicker}
                   onChange={e => setNewTicker(e.target.value.toUpperCase())}
-                  placeholder="Ticker (optional)"
+                  placeholder={text.tickerPlaceholder}
                   maxLength={10}
                   className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-mono focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
                 />
@@ -508,7 +563,7 @@ export default function CommunityPage() {
               <input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
-                placeholder="Title — what's on your mind?"
+                placeholder={text.titlePlaceholder}
                 maxLength={200}
                 className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
               />
@@ -517,7 +572,7 @@ export default function CommunityPage() {
               <textarea
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
-                placeholder="Share your DD, thesis, or hot take..."
+                placeholder={text.contentPlaceholder}
                 rows={5}
                 className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-green-500/50 placeholder:text-white/30 resize-none"
               />
@@ -529,7 +584,7 @@ export default function CommunityPage() {
                 className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-30 disabled:hover:bg-green-500 text-black font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
               >
                 {posting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                {posting ? 'Posting...' : 'Post to Community 🚀'}
+                {posting ? text.posting : text.postToCommunity}
               </button>
             </div>
           </div>
