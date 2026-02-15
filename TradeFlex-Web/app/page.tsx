@@ -459,11 +459,11 @@ export default function Home() {
                   </button>
                 </div>
               ) : (
-                <>
+                <div className="flex items-center gap-1">
                   <a href="/login" className="hover:text-white transition">LOG IN</a>
                   <span>/</span>
                   <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
-                </>
+                </div>
               )}
             </div>
           </nav>
