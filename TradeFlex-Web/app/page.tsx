@@ -120,6 +120,8 @@ export default function Home() {
   const [lang, setLang] = useState<'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr'>('en');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load Language Preference
@@ -135,6 +137,27 @@ export default function Home() {
     // Save to user profile if logged in
     if (user) {
       supabase.auth.updateUser({ data: { lang: newLang } });
+    }
+  };
+
+  const handleSubscribe = async () => {
+    if (!newsletterEmail || !newsletterEmail.includes('@')) return;
+    setNewsletterStatus('sending');
+    try {
+      const { error } = await supabase.from('newsletter').insert({ email: newsletterEmail.trim().toLowerCase() });
+      if (error && error.code === '23505') {
+        // Already subscribed
+        setNewsletterStatus('done');
+      } else if (error) {
+        setNewsletterStatus('error');
+      } else {
+        setNewsletterStatus('done');
+      }
+      setNewsletterEmail('');
+      setTimeout(() => setNewsletterStatus('idle'), 3000);
+    } catch {
+      setNewsletterStatus('error');
+      setTimeout(() => setNewsletterStatus('idle'), 3000);
     }
   };
 
@@ -1270,11 +1293,18 @@ export default function Home() {
             <div className="flex gap-2">
               <input 
                 type="email" 
-                placeholder="your@email.com" 
+                placeholder="your@email.com"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
                 className="flex-1 bg-black border border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-green-500 placeholder:text-zinc-700"
               />
-              <button className="bg-green-500 text-black px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-600 transition whitespace-nowrap">
-                {text.footerSubscribe}
+              <button 
+                onClick={handleSubscribe}
+                disabled={newsletterStatus === 'sending' || newsletterStatus === 'done'}
+                className={`px-3 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ${newsletterStatus === 'done' ? 'bg-green-700 text-white' : newsletterStatus === 'error' ? 'bg-red-600 text-white' : 'bg-green-500 text-black hover:bg-green-600'}`}
+              >
+                {newsletterStatus === 'sending' ? '...' : newsletterStatus === 'done' ? '✓' : newsletterStatus === 'error' ? '✗' : text.footerSubscribe}
               </button>
             </div>
             <p className="text-[10px] text-zinc-700 mt-2">{text.footerNoSpam}</p>
