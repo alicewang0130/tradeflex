@@ -405,7 +405,7 @@ export default function Home() {
             </h1>
             <button 
               onClick={() => changeLang(lang === 'en' ? 'cn' : 'en')}
-              className="ml-3 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
+              className="ml-1 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
               title="Switch Language"
             >
               {lang === 'en' ? (
