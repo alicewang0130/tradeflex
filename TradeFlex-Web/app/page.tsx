@@ -15,6 +15,7 @@ import type { User } from '@supabase/supabase-js';
 import { isAdmin } from './lib/admin';
 import NotificationBell from './components/NotificationBell';
 import GlobalSearch from './components/GlobalSearch';
+import { usePro } from './lib/usePro';
 
 export default function Home() {
   const [ticker, setTicker] = useState('TSLA');
@@ -35,6 +36,7 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
+  const { isPro } = usePro(user);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -853,6 +855,21 @@ export default function Home() {
               <Rocket className="w-5 h-5 -rotate-45" />
               <span className="text-xs font-bold tracking-widest">{text.verified}</span>
             </div>
+
+            {/* Watermark — free users only */}
+            {!isPro && (
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
+                <div className="rotate-[-30deg] flex flex-col gap-8 opacity-[0.08]">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex gap-6 whitespace-nowrap">
+                      {[...Array(3)].map((_, j) => (
+                        <span key={j} className="text-white text-2xl font-black tracking-widest">TRADEFLEX</span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <button className="md:hidden absolute -bottom-6 right-4 bg-white text-black p-4 rounded-full shadow-xl">
