@@ -381,6 +381,23 @@ export default function Home() {
       navPro: "PRO",
       navLogin: "LOG IN",
       navJoin: "JOIN",
+      footerAbout: "Built by traders, for traders. Show off your gains, share your DD, and compete with the best. No BS, no paywalls — just pure trading flex.",
+      footerFeatures: "Features",
+      footerTradeCard: "Trade Card Generator",
+      footerOracle: "Daily Market Oracle",
+      footerLeaderboard: "Leaderboard",
+      footerCommunity: "Community Forum",
+      footerIOS: "iOS App (Coming Soon)",
+      footerCompany: "Company",
+      footerAboutUs: "About Us",
+      footerPrivacy: "Privacy Policy",
+      footerTerms: "Terms of Service",
+      footerContact: "Contact Us",
+      footerStayUpdated: "Stay Updated",
+      footerNewsletter: "Get weekly market insights and new features.",
+      footerSubscribe: "Subscribe",
+      footerNoSpam: "No spam. Unsubscribe anytime.",
+      footerDisclaimer: "© 2026 TradeFlex. Not financial advice. Trade at your own risk. 🎰",
     },
     cn: {
       oracleTitle: "今日预言机 🔮",
@@ -426,6 +443,23 @@ export default function Home() {
       navPro: "PRO",
       navLogin: "登录",
       navJoin: "注册",
+      footerAbout: "由交易者打造，为交易者服务。晒出你的收益，分享你的分析，和最优秀的交易者一较高下。没有废话，没有付费墙——只有纯粹的交易战绩。",
+      footerFeatures: "功能",
+      footerTradeCard: "交易卡片生成",
+      footerOracle: "每日市场预言",
+      footerLeaderboard: "排行榜",
+      footerCommunity: "社区论坛",
+      footerIOS: "iOS App（即将上线）",
+      footerCompany: "关于",
+      footerAboutUs: "关于我们",
+      footerPrivacy: "隐私政策",
+      footerTerms: "服务条款",
+      footerContact: "联系我们",
+      footerStayUpdated: "保持关注",
+      footerNewsletter: "获取每周市场洞察和新功能更新。",
+      footerSubscribe: "订阅",
+      footerNoSpam: "无垃圾邮件，随时取消订阅。",
+      footerDisclaimer: "© 2026 TradeFlex. 非投资建议，交易风险自负。🎰",
     }
   };
 
@@ -1067,7 +1101,7 @@ export default function Home() {
               <span className="font-black text-lg bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">TRADEFLEX</span>
             </div>
             <p className="text-zinc-500 text-xs leading-relaxed">
-              Built by traders, for traders. Show off your gains, share your DD, and compete with the best. No BS, no paywalls — just pure trading flex.
+              {text.footerAbout}
             </p>
             <div className="flex gap-3 mt-4">
               <a href="#" className="text-zinc-600 hover:text-white transition" title="Twitter / X">
@@ -1084,31 +1118,31 @@ export default function Home() {
 
           {/* Features */}
           <div>
-            <h4 className="font-bold text-sm text-white mb-3">Features</h4>
+            <h4 className="font-bold text-sm text-white mb-3">{text.footerFeatures}</h4>
             <ul className="space-y-2 text-xs text-zinc-500">
-              <li className="hover:text-white transition cursor-pointer">📊 Trade Card Generator</li>
-              <li className="hover:text-white transition cursor-pointer">🔮 Daily Market Oracle</li>
-              <li className="hover:text-white transition cursor-pointer">🏆 Leaderboard</li>
-              <li><a href="/community" className="hover:text-white transition">💬 Community Forum</a></li>
-              <li className="hover:text-white transition cursor-pointer">📱 iOS App (Coming Soon)</li>
+              <li className="hover:text-white transition cursor-pointer">📊 {text.footerTradeCard}</li>
+              <li className="hover:text-white transition cursor-pointer">🔮 {text.footerOracle}</li>
+              <li className="hover:text-white transition cursor-pointer">🏆 {text.footerLeaderboard}</li>
+              <li><a href="/community" className="hover:text-white transition">💬 {text.footerCommunity}</a></li>
+              <li className="hover:text-white transition cursor-pointer">📱 {text.footerIOS}</li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-sm text-white mb-3">Company</h4>
+            <h4 className="font-bold text-sm text-white mb-3">{text.footerCompany}</h4>
             <ul className="space-y-2 text-xs text-zinc-500">
-              <li><a href="#" className="hover:text-white transition">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-              <li><a href="mailto:support@tradeflex.app" className="hover:text-white transition">Contact Us</a></li>
+              <li><a href="#" className="hover:text-white transition">{text.footerAboutUs}</a></li>
+              <li><a href="#" className="hover:text-white transition">{text.footerPrivacy}</a></li>
+              <li><a href="#" className="hover:text-white transition">{text.footerTerms}</a></li>
+              <li><a href="mailto:support@tradeflex.app" className="hover:text-white transition">{text.footerContact}</a></li>
             </ul>
           </div>
 
           {/* Newsletter / CTA */}
           <div className="col-span-2 md:col-span-1">
-            <h4 className="font-bold text-sm text-white mb-3">Stay Updated</h4>
-            <p className="text-xs text-zinc-500 mb-3">Get weekly market insights and new features.</p>
+            <h4 className="font-bold text-sm text-white mb-3">{text.footerStayUpdated}</h4>
+            <p className="text-xs text-zinc-500 mb-3">{text.footerNewsletter}</p>
             <div className="flex gap-2">
               <input 
                 type="email" 
@@ -1116,17 +1150,17 @@ export default function Home() {
                 className="flex-1 bg-black border border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-green-500 placeholder:text-zinc-700"
               />
               <button className="bg-green-500 text-black px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-600 transition whitespace-nowrap">
-                Subscribe
+                {text.footerSubscribe}
               </button>
             </div>
-            <p className="text-[10px] text-zinc-700 mt-2">No spam. Unsubscribe anytime.</p>
+            <p className="text-[10px] text-zinc-700 mt-2">{text.footerNoSpam}</p>
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="border-t border-zinc-800/50">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <span className="text-zinc-600 text-xs">© 2026 TradeFlex. Not financial advice. Trade at your own risk. 🎰</span>
+            <span className="text-zinc-600 text-xs">{text.footerDisclaimer}</span>
             <button className="bg-white text-black px-5 py-2 rounded-full font-bold text-xs hover:bg-gray-200 transition">
               {text.downloadApp}
             </button>
