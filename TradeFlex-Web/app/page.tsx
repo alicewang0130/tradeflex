@@ -165,6 +165,7 @@ export default function Home() {
   const [bullCount, setBullCount] = useState(69420);
   const [bearCount, setBearCount] = useState(31000);
   const [voted, setVoted] = useState<'bull' | 'bear' | null>(null);
+  const [showMarketClosed, setShowMarketClosed] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Leaderboard State
@@ -269,10 +270,23 @@ export default function Home() {
   const bullPercent = Math.round((bullCount / totalVotes) * 100);
   const bearPercent = 100 - bullPercent;
 
+  // Check if voting is open (before 9:30 AM ET)
+  const isVotingOpen = () => {
+    const now = new Date();
+    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const hours = et.getHours();
+    const minutes = et.getMinutes();
+    return hours < 9 || (hours === 9 && minutes < 30);
+  };
+
   const handleVote = (side: 'bull' | 'bear') => {
     if (voted) return;
     if (!user) {
       setShowLoginPrompt(true);
+      return;
+    }
+    if (!isVotingOpen()) {
+      setShowMarketClosed(true);
       return;
     }
     setVoted(side);
@@ -1339,6 +1353,24 @@ export default function Home() {
                 Maybe later
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showMarketClosed && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4" onClick={() => setShowMarketClosed(false)}>
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-4">⏰</div>
+            <h3 className="text-xl font-black mb-2">{lang === 'cn' ? '投票已关闭' : lang === 'ja' ? '投票は締め切られました' : lang === 'ko' ? '투표가 마감되었습니다' : lang === 'es' ? '¡Votación cerrada!' : lang === 'fr' ? 'Vote terminé !' : 'Voting is Closed!'}</h3>
+            <p className="text-white/50 text-sm mb-2">
+              {lang === 'cn' ? '市场已经在美东 9:30 AM 开盘了。' : lang === 'ja' ? '市場は ET 9:30 AM に開場しました。' : lang === 'ko' ? '시장은 ET 9:30 AM에 개장했습니다.' : lang === 'es' ? 'El mercado abrió a las 9:30 AM ET.' : lang === 'fr' ? 'Le marché a ouvert à 9h30 ET.' : 'The market has opened at 9:30 AM ET.'}
+            </p>
+            <p className="text-white/50 text-sm mb-6">
+              {lang === 'cn' ? '明天开盘前回来投票吧！🌅' : lang === 'ja' ? '明日の開場前にまた来てね！🌅' : lang === 'ko' ? '내일 개장 전에 다시 오세요! 🌅' : lang === 'es' ? '¡Vuelve mañana antes de la apertura! 🌅' : lang === 'fr' ? 'Reviens demain avant l\'ouverture ! 🌅' : 'Come back tomorrow before market open! 🌅'}
+            </p>
+            <button onClick={() => setShowMarketClosed(false)} className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition">
+              {lang === 'cn' ? '知道了' : lang === 'ja' ? '了解' : lang === 'ko' ? '확인' : lang === 'es' ? 'Entendido' : lang === 'fr' ? 'Compris' : 'Got it'}
+            </button>
           </div>
         </div>
       )}
