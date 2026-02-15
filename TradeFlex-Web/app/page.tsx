@@ -32,6 +32,9 @@ export default function Home() {
   const [expiry, setExpiry] = useState('');
   const [optionType, setOptionType] = useState<'CALL' | 'PUT'>('CALL');
 
+  // Custom Background (Pro)
+  const [customBg, setCustomBg] = useState<string | null>(null);
+
   // Auth State
   const [user, setUser] = useState<User | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -213,9 +216,11 @@ export default function Home() {
 
   const isProfit = pnlPercent >= 0;
   const textColor = '#ffffff'; 
-  const gradientStyle = isProfit 
-    ? { background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' } 
-    : { background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' }; 
+  const gradientStyle = customBg
+    ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : isProfit 
+      ? { background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' } 
+      : { background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' }; 
 
   // --- EFFECTS ---
   useEffect(() => {
@@ -765,6 +770,38 @@ export default function Home() {
               )}
             </div>
 
+            {/* Custom Background — Pro only */}
+            {isPro && (
+              <div className="flex gap-2">
+                <label className="flex-1 cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setCustomBg(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <div className="w-full bg-zinc-800 border border-zinc-700 text-white font-bold py-3 rounded-xl text-sm text-center hover:bg-zinc-700 transition flex items-center justify-center gap-2">
+                    🖼️ {customBg ? 'Change Background' : 'Custom Background'}
+                  </div>
+                </label>
+                {customBg && (
+                  <button
+                    onClick={() => setCustomBg(null)}
+                    className="bg-zinc-800 border border-zinc-700 text-white/50 font-bold px-4 rounded-xl text-sm hover:bg-zinc-700 hover:text-white transition"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
+
             <button 
               onClick={handleGenerate}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-black font-black py-4 rounded-xl text-lg hover:scale-[1.02] active:scale-[0.98] transition shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
@@ -781,6 +818,7 @@ export default function Home() {
             style={gradientStyle}
           >
             {/* Background Pattern */}
+            {customBg && <div className="absolute inset-0 bg-black/40 z-[1]"></div>}
             <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
             
             {/* Content */}
