@@ -129,6 +129,7 @@ export default function Home() {
   const [bullCount, setBullCount] = useState(69420);
   const [bearCount, setBearCount] = useState(31000);
   const [voted, setVoted] = useState<'bull' | 'bear' | null>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Leaderboard State
   interface LeaderboardEntry {
@@ -233,7 +234,7 @@ export default function Home() {
   const handleVote = (side: 'bull' | 'bear') => {
     if (voted) return;
     if (!user) {
-      window.location.href = '/login?mode=signup';
+      setShowLoginPrompt(true);
       return;
     }
     setVoted(side);
@@ -941,6 +942,27 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {/* Login Prompt Popup */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4" onClick={() => setShowLoginPrompt(false)}>
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-4">🔒</div>
+            <h3 className="text-xl font-black mb-2">Sign up to vote!</h3>
+            <p className="text-white/50 text-sm mb-6">Join TradeFlex to predict the market and compete with other traders.</p>
+            <div className="space-y-3">
+              <a href="/login?mode=signup" className="block w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded-xl transition text-center">
+                Sign Up Free 🚀
+              </a>
+              <a href="/login" className="block w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition text-center">
+                I have an account
+              </a>
+              <button onClick={() => setShowLoginPrompt(false)} className="text-white/30 text-sm hover:text-white/50 transition">
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
