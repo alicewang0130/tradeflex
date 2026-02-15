@@ -62,7 +62,7 @@ export default function Home() {
         const isNew = Math.abs(lastSignIn - created) < 10000;
         setIsNewUser(isNew);
         setShowWelcome(true);
-        setTimeout(() => setShowWelcome(false), 10000);
+        setTimeout(() => setShowWelcome(false), 3000);
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -91,7 +91,7 @@ export default function Home() {
         const isNew = Math.abs(lastSignIn - created) < 10000;
         setIsNewUser(isNew);
         setShowWelcome(true);
-        setTimeout(() => setShowWelcome(false), 10000);
+        setTimeout(() => setShowWelcome(false), 3000);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
