@@ -99,13 +99,16 @@ export default function Login() {
         });
         if (error) throw error;
       }
-      // Check if user is banned
-      const banned = await checkBanned();
-      if (banned) return;
+      // Check if user is banned (don't block login if check fails)
+      try {
+        const banned = await checkBanned();
+        if (banned) return;
+      } catch {
+        // If ban check fails, allow login anyway
+      }
       router.push('/');
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
