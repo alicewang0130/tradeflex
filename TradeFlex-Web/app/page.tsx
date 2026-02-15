@@ -232,6 +232,10 @@ export default function Home() {
 
   const handleVote = (side: 'bull' | 'bear') => {
     if (voted) return;
+    if (!user) {
+      window.location.href = '/login?mode=signup';
+      return;
+    }
     setVoted(side);
     if (side === 'bull') setBullCount(prev => prev + 1);
     else setBearCount(prev => prev + 1);
