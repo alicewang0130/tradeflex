@@ -58,7 +58,7 @@ export default function Home() {
         }
         setUser(user);
         // Restore user's language preference
-        const userLang = user.user_metadata?.lang as 'en' | 'cn' | undefined;
+        const userLang = user.user_metadata?.lang as 'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr' | undefined;
         if (userLang) {
           setLang(userLang);
           localStorage.setItem('tradeflex-lang', userLang);
@@ -90,7 +90,7 @@ export default function Home() {
         }
         setUser(newUser);
         // Restore user's language preference
-        const userLang = newUser.user_metadata?.lang as 'en' | 'cn' | undefined;
+        const userLang = newUser.user_metadata?.lang as 'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr' | undefined;
         if (userLang) {
           setLang(userLang);
           localStorage.setItem('tradeflex-lang', userLang);
@@ -117,18 +117,18 @@ export default function Home() {
   };
 
   // Lang State
-  const [lang, setLang] = useState<'en' | 'cn'>('en');
+  const [lang, setLang] = useState<'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr'>('en');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load Language Preference
   useEffect(() => {
-    const savedLang = localStorage.getItem('tradeflex-lang') as 'en' | 'cn';
+    const savedLang = localStorage.getItem('tradeflex-lang') as typeof lang;
     if (savedLang) setLang(savedLang);
     setIsLoaded(true);
   }, []);
 
-  const changeLang = (newLang: 'en' | 'cn') => {
+  const changeLang = (newLang: typeof lang) => {
     setLang(newLang);
     localStorage.setItem('tradeflex-lang', newLang);
     // Save to user profile if logged in
@@ -466,7 +466,107 @@ export default function Home() {
       footerSubscribe: "订阅",
       footerNoSpam: "无垃圾邮件，随时取消订阅。",
       footerDisclaimer: "© 2026 TradeFlex. 非投资建议，交易风险自负。🎰",
-    }
+    },
+    ja: {
+      oracleTitle: "今日のオラクル 🔮", oracleSubtitle: "市場開始前に投票（ET 9:30 AM）— 今日の相場を予測！",
+      live: "リアルタイム投票", bullish: "強気", bearish: "弱気",
+      flexTitle: "あなたの", flexSubtitle: "究極のトレード成績を作成。シェアして伝説になれ。",
+      gains: "利益 🚀", losses: "損失 📉",
+      ticker: "銘柄", position: "ポジション", long: "ロング", short: "ショート",
+      status: "ステータス", open: "保有中", closed: "決済済",
+      instrument: "商品", stock: "株式", option: "オプション",
+      strike: "行使価格 ($)", expiry: "満期日", call: "コール", put: "プット",
+      entry: "平均取得単価", exit: "売却価格", current: "現在価格",
+      quantity: "数量", pnl: "損益 ($)",
+      generate: "画像を生成", customBg: "背景をカスタム", changeBg: "背景を変更", logout: "ログアウト",
+      verified: "TRADEFLEX認証", hallOfFame: "殿堂 🏆", mooners: "急騰 🚀", rekt: "爆損 💀",
+      downloadApp: "アプリDL", unrealized: "含み損益", realized: "確定損益", emoji: "カスタム絵文字",
+      navLeaderboard: "ランキング", navCreate: "作成", navCommunity: "コミュニティ",
+      navPro: "PRO", navLogin: "ログイン", navJoin: "登録",
+      footerAbout: "トレーダーによる、トレーダーのためのプラットフォーム。利益を見せびらかし、分析を共有し、最高のトレーダーと競え。",
+      footerFeatures: "機能", footerTradeCard: "トレードカード生成", footerOracle: "デイリーオラクル",
+      footerLeaderboard: "ランキング", footerCommunity: "コミュニティ", footerIOS: "iOSアプリ（近日公開）",
+      footerCompany: "会社情報", footerAboutUs: "私たちについて", footerPrivacy: "プライバシーポリシー",
+      footerTerms: "利用規約", footerContact: "お問い合わせ",
+      footerStayUpdated: "最新情報", footerNewsletter: "週刊マーケット情報と新機能をお届け。",
+      footerSubscribe: "登録", footerNoSpam: "スパムなし。いつでも解除可能。",
+      footerDisclaimer: "© 2026 TradeFlex. 投資助言ではありません。取引は自己責任で。🎰",
+    },
+    ko: {
+      oracleTitle: "오늘의 오라클 🔮", oracleSubtitle: "장 시작 전 투표 (ET 9:30 AM) — 오늘의 시장을 예측하세요!",
+      live: "실시간 투표", bullish: "강세", bearish: "약세",
+      flexTitle: "당신의", flexSubtitle: "최고의 트레이딩 성과를 만들어 공유하세요. 전설이 되세요.",
+      gains: "수익 🚀", losses: "손실 📉",
+      ticker: "종목", position: "포지션", long: "롱", short: "숏",
+      status: "상태", open: "보유 중", closed: "청산 완료",
+      instrument: "상품", stock: "주식", option: "옵션",
+      strike: "행사가 ($)", expiry: "만기일", call: "콜", put: "풋",
+      entry: "평균 매입가", exit: "매도가", current: "현재가",
+      quantity: "수량", pnl: "손익 ($)",
+      generate: "이미지 생성", customBg: "배경 커스텀", changeBg: "배경 변경", logout: "로그아웃",
+      verified: "TRADEFLEX 인증", hallOfFame: "명예의 전당 🏆", mooners: "급등 🚀", rekt: "폭망 💀",
+      downloadApp: "앱 다운로드", unrealized: "미실현 손익", realized: "실현 손익", emoji: "커스텀 이모지",
+      navLeaderboard: "순위", navCreate: "만들기", navCommunity: "커뮤니티",
+      navPro: "PRO", navLogin: "로그인", navJoin: "가입",
+      footerAbout: "트레이더가 만든, 트레이더를 위한 플랫폼. 수익을 자랑하고, 분석을 공유하고, 최고의 트레이더와 경쟁하세요.",
+      footerFeatures: "기능", footerTradeCard: "트레이드 카드 생성", footerOracle: "데일리 오라클",
+      footerLeaderboard: "순위", footerCommunity: "커뮤니티 포럼", footerIOS: "iOS 앱 (곧 출시)",
+      footerCompany: "회사", footerAboutUs: "회사 소개", footerPrivacy: "개인정보 처리방침",
+      footerTerms: "이용약관", footerContact: "문의하기",
+      footerStayUpdated: "최신 소식", footerNewsletter: "주간 시장 인사이트와 새로운 기능을 받아보세요.",
+      footerSubscribe: "구독", footerNoSpam: "스팸 없음. 언제든 해지 가능.",
+      footerDisclaimer: "© 2026 TradeFlex. 투자 조언이 아닙니다. 투자 책임은 본인에게 있습니다. 🎰",
+    },
+    es: {
+      oracleTitle: "ORÁCULO DE HOY 🔮", oracleSubtitle: "Vota antes de la apertura (9:30 AM ET) — ¡predice el mercado!",
+      live: "VOTACIÓN EN VIVO", bullish: "ALCISTA", bearish: "BAJISTA",
+      flexTitle: "PRESUME TUS", flexSubtitle: "Genera la imagen de trading definitiva. Compártela. Conviértete en leyenda.",
+      gains: "GANANCIAS 🚀", losses: "PÉRDIDAS 📉",
+      ticker: "TICKER", position: "POSICIÓN", long: "LARGO", short: "CORTO",
+      status: "ESTADO", open: "ABIERTA", closed: "CERRADA",
+      instrument: "INSTRUMENTO", stock: "ACCIÓN", option: "OPCIÓN",
+      strike: "STRIKE ($)", expiry: "VENCIMIENTO", call: "CALL", put: "PUT",
+      entry: "COSTO PROMEDIO", exit: "PRECIO", current: "PRECIO",
+      quantity: "CANTIDAD", pnl: "G/P ($)",
+      generate: "GENERAR IMAGEN", customBg: "Fondo personalizado", changeBg: "Cambiar fondo", logout: "Cerrar sesión",
+      verified: "VERIFICADO POR TRADEFLEX", hallOfFame: "SALÓN DE LA FAMA 🏆", mooners: "COHETES 🚀", rekt: "DESTROZADOS 💀",
+      downloadApp: "Descargar App", unrealized: "G/P NO REALIZADA", realized: "G/P REALIZADA", emoji: "EMOCIÓN",
+      navLeaderboard: "RANKING", navCreate: "CREAR", navCommunity: "COMUNIDAD",
+      navPro: "PRO", navLogin: "ACCEDER", navJoin: "UNIRSE",
+      footerAbout: "Hecho por traders, para traders. Presume tus ganancias, comparte tu análisis y compite con los mejores.",
+      footerFeatures: "Funciones", footerTradeCard: "Generador de tarjetas", footerOracle: "Oráculo del mercado",
+      footerLeaderboard: "Ranking", footerCommunity: "Foro", footerIOS: "App iOS (Próximamente)",
+      footerCompany: "Empresa", footerAboutUs: "Sobre nosotros", footerPrivacy: "Privacidad",
+      footerTerms: "Términos", footerContact: "Contacto",
+      footerStayUpdated: "Mantente al día", footerNewsletter: "Recibe análisis semanales y nuevas funciones.",
+      footerSubscribe: "Suscribirse", footerNoSpam: "Sin spam. Cancela cuando quieras.",
+      footerDisclaimer: "© 2026 TradeFlex. No es asesoría financiera. Opera bajo tu propio riesgo. 🎰",
+    },
+    fr: {
+      oracleTitle: "ORACLE DU JOUR 🔮", oracleSubtitle: "Votez avant l'ouverture (9h30 ET) — prédisez le marché !",
+      live: "VOTE EN DIRECT", bullish: "HAUSSIER", bearish: "BAISSIER",
+      flexTitle: "AFFICHE TES", flexSubtitle: "Génère l'image de trading ultime. Partage-la. Deviens une légende.",
+      gains: "GAINS 🚀", losses: "PERTES 📉",
+      ticker: "TICKER", position: "POSITION", long: "LONG", short: "SHORT",
+      status: "STATUT", open: "OUVERT", closed: "FERMÉ",
+      instrument: "INSTRUMENT", stock: "ACTION", option: "OPTION",
+      strike: "STRIKE ($)", expiry: "EXPIRATION", call: "CALL", put: "PUT",
+      entry: "COÛT MOYEN", exit: "PRIX", current: "PRIX",
+      quantity: "QUANTITÉ", pnl: "P/L ($)",
+      generate: "GÉNÉRER L'IMAGE", customBg: "Fond personnalisé", changeBg: "Changer le fond", logout: "Déconnexion",
+      verified: "VÉRIFIÉ PAR TRADEFLEX", hallOfFame: "PANTHÉON 🏆", mooners: "FUSÉES 🚀", rekt: "RUINÉS 💀",
+      downloadApp: "Télécharger", unrealized: "P/L NON RÉALISÉ", realized: "P/L RÉALISÉ", emoji: "ÉMOTION",
+      navLeaderboard: "CLASSEMENT", navCreate: "CRÉER", navCommunity: "COMMUNAUTÉ",
+      navPro: "PRO", navLogin: "CONNEXION", navJoin: "S'INSCRIRE",
+      footerAbout: "Fait par des traders, pour des traders. Affiche tes gains, partage tes analyses et rivalise avec les meilleurs.",
+      footerFeatures: "Fonctionnalités", footerTradeCard: "Générateur de cartes", footerOracle: "Oracle du marché",
+      footerLeaderboard: "Classement", footerCommunity: "Forum", footerIOS: "App iOS (Bientôt)",
+      footerCompany: "Entreprise", footerAboutUs: "À propos", footerPrivacy: "Confidentialité",
+      footerTerms: "Conditions", footerContact: "Contact",
+      footerStayUpdated: "Restez informé", footerNewsletter: "Recevez des analyses hebdomadaires et les nouvelles fonctionnalités.",
+      footerSubscribe: "S'abonner", footerNoSpam: "Pas de spam. Désabonnement à tout moment.",
+      footerDisclaimer: "© 2026 TradeFlex. Pas un conseil financier. Tradez à vos risques. 🎰",
+    },
   };
 
   const text = t[lang];
@@ -512,7 +612,7 @@ export default function Home() {
               TRADEFLEX
             </h1>
             <button 
-              onClick={() => changeLang(lang === 'en' ? 'cn' : 'en')}
+              onClick={() => changeLang(lang === 'en' ? 'cn' : lang === 'cn' ? 'ja' : lang === 'ja' ? 'ko' : lang === 'ko' ? 'es' : lang === 'es' ? 'fr' : 'en')}
               className="ml-1 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
               title="Switch Language"
             >
@@ -524,6 +624,32 @@ export default function Home() {
                   <g transform="translate(470 205) rotate(-8)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
                   <g transform="translate(470 300) rotate(16)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
                   <g transform="translate(400 375) rotate(37)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
+                </svg>
+              ) : lang === 'cn' ? (
+                <svg viewBox="0 0 900 600" className="w-full h-full">
+                  <rect width="900" height="600" fill="#fff"/>
+                  <rect width="900" height="200" fill="#bc002d"/>
+                  <rect y="200" width="900" height="200" fill="#fff"/>
+                  <rect y="400" width="900" height="200" fill="#bc002d"/>
+                  <circle cx="350" cy="300" r="120" fill="#bc002d"/>
+                </svg>
+              ) : lang === 'ja' ? (
+                <svg viewBox="0 0 900 600" className="w-full h-full">
+                  <rect width="900" height="200" fill="#fff"/>
+                  <rect y="200" width="900" height="200" fill="#cd2e3a"/>
+                  <rect y="400" width="900" height="200" fill="#0047a0"/>
+                </svg>
+              ) : lang === 'ko' ? (
+                <svg viewBox="0 0 900 600" className="w-full h-full">
+                  <rect width="900" height="200" fill="#aa151b"/>
+                  <rect y="200" width="900" height="200" fill="#f1bf00"/>
+                  <rect y="400" width="900" height="200" fill="#aa151b"/>
+                </svg>
+              ) : lang === 'es' ? (
+                <svg viewBox="0 0 900 600" className="w-full h-full">
+                  <rect width="900" height="200" fill="#002395"/>
+                  <rect y="200" width="900" height="200" fill="#fff"/>
+                  <rect y="400" width="900" height="200" fill="#ed2939"/>
                 </svg>
               ) : (
                 <svg viewBox="0 0 1235 650" className="w-full h-full">
