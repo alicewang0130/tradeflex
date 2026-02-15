@@ -1048,7 +1048,7 @@ export default function Home() {
           {/* Mooners Column */}
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-               <h3 className="text-xl font-black text-green-500 flex items-center gap-2">MOONERS 🚀</h3>
+               <h3 className="text-xl font-black text-green-500 flex items-center gap-2">{text.mooners}</h3>
             </div>
             {mooners.map((item) => (
               <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-green-500/50 transition cursor-pointer group">
@@ -1073,7 +1073,7 @@ export default function Home() {
           {/* Rekt Column */}
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-               <h3 className="text-xl font-black text-red-500 flex items-center gap-2">REKT 💀</h3>
+               <h3 className="text-xl font-black text-red-500 flex items-center gap-2">{text.rekt}</h3>
             </div>
             {rektList.map((item) => (
               <div key={item.rank} className="flex items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl hover:border-red-500/50 transition cursor-pointer group">
