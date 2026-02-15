@@ -69,6 +69,8 @@ export default function Login() {
         },
       });
       if (error) throw error;
+      // OAuth will redirect — reset loading after 5s in case popup was blocked
+      setTimeout(() => setLoading(false), 5000);
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
