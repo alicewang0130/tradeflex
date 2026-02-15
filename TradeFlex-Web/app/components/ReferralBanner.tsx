@@ -1,23 +1,44 @@
 //
 //  app/components/ReferralBanner.tsx
-//  TradeFlex - Referral / Invite Friends Banner
+//  TradeFlex - Referral / Invite Friends Banner (Bilingual)
 //
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Gift, Copy, Check, X } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 export default function ReferralBanner({ user }: { user: User | null }) {
   const [copied, setCopied] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [lang, setLang] = useState<'en' | 'cn'>('en');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('tradeflex-lang') as 'en' | 'cn' | null;
+    if (saved) setLang(saved);
+  }, []);
 
   if (!user || dismissed) return null;
 
-  // Generate referral link from user id (first 8 chars)
   const refCode = user.id.slice(0, 8);
   const refLink = `https://tradeflex.app?ref=${refCode}`;
+
+  const t = {
+    en: {
+      title: 'Invite Friends, Get Pro Free 🎁',
+      desc: 'Invite 3 friends and get 1 month of Pro for free! They get 7 days of Pro too.',
+      copy: 'Copy',
+      copied: 'Copied!',
+    },
+    cn: {
+      title: '邀请好友，免费获得 Pro 🎁',
+      desc: '邀请 3 位好友注册，免费获得 1 个月 Pro！好友也能获得 7 天 Pro 体验。',
+      copy: '复制',
+      copied: '已复制！',
+    },
+  };
+  const text = t[lang];
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(refLink);
@@ -38,9 +59,9 @@ export default function ReferralBanner({ user }: { user: User | null }) {
           <Gift size={20} className="text-yellow-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-sm text-white mb-1">Invite Friends, Get Pro Free 🎁</h4>
+          <h4 className="font-bold text-sm text-white mb-1">{text.title}</h4>
           <p className="text-xs text-white/50 mb-3">
-            Invite 3 friends and get 1 month of Pro for free! They get 7 days of Pro too.
+            {text.desc}
           </p>
           <div className="flex gap-2">
             <div className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white/60 truncate font-mono">
@@ -50,7 +71,7 @@ export default function ReferralBanner({ user }: { user: User | null }) {
               onClick={handleCopy}
               className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1 shrink-0"
             >
-              {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+              {copied ? <><Check size={14} /> {text.copied}</> : <><Copy size={14} /> {text.copy}</>}
             </button>
           </div>
         </div>
