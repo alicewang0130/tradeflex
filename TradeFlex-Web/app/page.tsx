@@ -427,30 +427,38 @@ export default function Home() {
             </button>
           </div>
           
-          <nav className="hidden md:flex gap-1 text-sm font-black text-zinc-400 items-center">
-            <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">LEADERBOARD</button>
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white mr-6">ORACLE</button>
-            <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">CREATE</button>
-            <a href="/community" className="hover:text-white transition mr-6">COMMUNITY</a>
-            
-            <div className="flex items-center gap-1 border-l border-zinc-800 pl-6">
-              {user ? (
-                <div className="flex items-center gap-2">
-                  {isAdmin(user.email) && (
-                    <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition mr-1" title="Admin Panel">⚙️ Manage</a>
-                  )}
-                  <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
-                  <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <a href="/login" className="hover:text-white transition">LOG IN</a>
-                  <span>/</span>
-                  <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
-                </>
-              )}
+          <nav className="hidden md:flex flex-col gap-2">
+            {/* Row 1: Main nav + auth */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-6 text-sm font-black text-zinc-400">
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white hover:text-white transition">ORACLE</button>
+                <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
+                <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
+                <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+              </div>
+              
+              <div className="flex items-center gap-3 text-sm font-black text-zinc-400">
+                {user ? (
+                  <div className="flex items-center gap-2">
+                    {isAdmin(user.email) && (
+                      <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition" title="Admin Panel">⚙️ Manage</a>
+                    )}
+                    <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
+                    <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <a href="/login" className="hover:text-white transition">LOG IN</a>
+                    <span>/</span>
+                    <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
+                  </>
+                )}
+                <button className="bg-white text-black px-4 py-1.5 rounded-full font-bold text-xs hover:bg-gray-200 transition whitespace-nowrap ml-2">
+                  {text.downloadApp}
+                </button>
+              </div>
             </div>
           </nav>
           
@@ -477,7 +485,7 @@ export default function Home() {
               )}
             </div>
 
-            <button className="bg-white text-black px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm hover:bg-gray-200 transition whitespace-nowrap hidden sm:block">
+            <button className="bg-white text-black px-3 py-1.5 rounded-full font-bold text-xs hover:bg-gray-200 transition whitespace-nowrap md:hidden">
               {text.downloadApp}
             </button>
           </div>
