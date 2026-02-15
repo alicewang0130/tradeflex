@@ -446,10 +446,6 @@ export default function Home() {
             <a href="/community" className="hover:text-white transition">COMMUNITY</a>
             <a href="/pricing" className="text-yellow-400/70 hover:text-yellow-400 transition">PRO</a>
             
-            <div className="w-40">
-              <GlobalSearch />
-            </div>
-            
             <div className="border-l border-zinc-800 pl-4 flex items-center gap-2">
               <NotificationBell user={user} />
               {user ? (
