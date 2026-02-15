@@ -477,10 +477,13 @@ export default function Home() {
         </div>
 
         {/* Mobile: nav links row below logo */}
-        <div className="md:hidden flex gap-4 text-xs font-black tracking-wide text-zinc-400 -mt-4 mb-2">
+        <div className="md:hidden flex gap-4 text-xs font-black tracking-wide text-zinc-400 -mt-4 mb-2 items-center">
           <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
           <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
           <a href="/community" className="hover:text-white transition">COMMUNITY</a>
+          <button className="bg-white text-black px-3 py-1 rounded-full font-bold text-[10px] hover:bg-gray-200 transition whitespace-nowrap ml-auto">
+            {text.downloadApp}
+          </button>
         </div>
 
         <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
@@ -900,13 +903,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <div className="md:hidden fixed bottom-10 left-6 right-6 z-[100]">
-        <button className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-black py-3.5 rounded-full shadow-[0_0_30px_rgba(34,197,94,0.3)] border-2 border-green-400/80 flex items-center justify-center gap-2 active:scale-95 transition-transform">
-          <Rocket className="w-5 h-5 text-black" />
-          {text.downloadApp}
-        </button>
-      </div>
-
       {/* Footer */}
       <footer className="hidden md:block border-t border-zinc-800 mt-24 py-10 relative z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
