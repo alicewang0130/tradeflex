@@ -291,6 +291,7 @@ export default function Home() {
   const t = {
     en: {
       oracleTitle: "TODAY'S ORACLE 🔮",
+      oracleSubtitle: "Vote before market open (9:30 AM ET) — predict today's move!",
       live: "LIVE VOTING",
       bullish: "BULLISH",
       bearish: "BEARISH",
@@ -329,6 +330,7 @@ export default function Home() {
     },
     cn: {
       oracleTitle: "今日预言机 🔮",
+      oracleSubtitle: "在开盘前投票（美东 9:30 AM）— 预测今天大盘走势！",
       live: "实时投票",
       bullish: "看涨",
       bearish: "看跌",
@@ -497,10 +499,11 @@ export default function Home() {
         </div>
 
         <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-1">
             <h3 className="font-black text-zinc-400 text-sm tracking-widest">{text.oracleTitle}</h3>
             <span className="text-green-500 font-bold text-sm animate-pulse">● {text.live}</span>
           </div>
+          <p className="text-zinc-500 text-xs mb-4">{text.oracleSubtitle}</p>
           
           <div className="flex gap-4">
             <button 
