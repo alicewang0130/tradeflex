@@ -67,8 +67,11 @@ export default function Home() {
         const lastSignIn = new Date(user.last_sign_in_at || '').getTime();
         const isNew = Math.abs(lastSignIn - created) < 10000;
         setIsNewUser(isNew);
-        setShowWelcome(true);
-        setTimeout(() => setShowWelcome(false), 2000);
+        if (!sessionStorage.getItem('tradeflex-welcomed')) {
+          sessionStorage.setItem('tradeflex-welcomed', '1');
+          setShowWelcome(true);
+          setTimeout(() => setShowWelcome(false), 2000);
+        }
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -96,8 +99,11 @@ export default function Home() {
         const lastSignIn = new Date(newUser.last_sign_in_at || '').getTime();
         const isNew = Math.abs(lastSignIn - created) < 10000;
         setIsNewUser(isNew);
-        setShowWelcome(true);
-        setTimeout(() => setShowWelcome(false), 2000);
+        if (!sessionStorage.getItem('tradeflex-welcomed')) {
+          sessionStorage.setItem('tradeflex-welcomed', '1');
+          setShowWelcome(true);
+          setTimeout(() => setShowWelcome(false), 2000);
+        }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
