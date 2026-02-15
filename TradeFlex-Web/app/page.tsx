@@ -119,6 +119,7 @@ export default function Home() {
   // Lang State
   const [lang, setLang] = useState<'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr'>('en');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load Language Preference
@@ -611,54 +612,45 @@ export default function Home() {
             <h1 className="text-2xl font-black tracking-tighter bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
               TRADEFLEX
             </h1>
-            <button 
-              onClick={() => changeLang(lang === 'en' ? 'cn' : lang === 'cn' ? 'ja' : lang === 'ja' ? 'ko' : lang === 'ko' ? 'es' : lang === 'es' ? 'fr' : 'en')}
-              className="ml-1 hover:scale-110 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
-              title="Switch Language"
-            >
-              {lang === 'en' ? (
-                <svg viewBox="0 0 900 600" className="w-full h-full">
-                  <rect width="900" height="600" fill="#de2910"/>
-                  <path fill="#ffde00" d="M250.4 180.3l37.2 27.2-14.3 43.8 37.3-27.1 37.3 27.1-14.3-43.8 37.2-27.2-46-0.1-14.2-43.9-14.2 43.9z"/>
-                  <g transform="translate(400 130) rotate(-28)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
-                  <g transform="translate(470 205) rotate(-8)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
-                  <g transform="translate(470 300) rotate(16)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
-                  <g transform="translate(400 375) rotate(37)"><path fill="#ffde00" d="M0-28l9 27-23.7-17h29.4L-9-1z"/></g>
-                </svg>
-              ) : lang === 'cn' ? (
-                <svg viewBox="0 0 900 600" className="w-full h-full">
-                  <rect width="900" height="600" fill="#fff"/>
-                  <rect width="900" height="200" fill="#bc002d"/>
-                  <rect y="200" width="900" height="200" fill="#fff"/>
-                  <rect y="400" width="900" height="200" fill="#bc002d"/>
-                  <circle cx="350" cy="300" r="120" fill="#bc002d"/>
-                </svg>
-              ) : lang === 'ja' ? (
-                <svg viewBox="0 0 900 600" className="w-full h-full">
-                  <rect width="900" height="200" fill="#fff"/>
-                  <rect y="200" width="900" height="200" fill="#cd2e3a"/>
-                  <rect y="400" width="900" height="200" fill="#0047a0"/>
-                </svg>
-              ) : lang === 'ko' ? (
-                <svg viewBox="0 0 900 600" className="w-full h-full">
-                  <rect width="900" height="200" fill="#aa151b"/>
-                  <rect y="200" width="900" height="200" fill="#f1bf00"/>
-                  <rect y="400" width="900" height="200" fill="#aa151b"/>
-                </svg>
-              ) : lang === 'es' ? (
-                <svg viewBox="0 0 900 600" className="w-full h-full">
-                  <rect width="900" height="200" fill="#002395"/>
-                  <rect y="200" width="900" height="200" fill="#fff"/>
-                  <rect y="400" width="900" height="200" fill="#ed2939"/>
-                </svg>
-              ) : (
-                <svg viewBox="0 0 1235 650" className="w-full h-full">
-                  <rect width="1235" height="650" fill="#b22234"/>
-                  <path d="M0,0H1235V50H0M0,100H1235V150H0M0,200H1235V250H0M0,300H1235V350H0M0,400H1235V450H0M0,500H1235V550H0M0,600H1235V650H0" fill="#fff"/>
-                  <rect width="494" height="350" fill="#3c3b6e"/>
-                </svg>
+            <div className="relative ml-1">
+              <button 
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="hover:scale-105 transition flex items-center justify-center w-6 h-4 overflow-hidden shadow-sm"
+                title="Switch Language"
+              >
+                {lang === 'en' && <svg viewBox="0 0 1235 650" className="w-full h-full"><rect width="1235" height="650" fill="#b22234"/><path d="M0,0H1235V50H0M0,100H1235V150H0M0,200H1235V250H0M0,300H1235V350H0M0,400H1235V450H0M0,500H1235V550H0M0,600H1235V650H0" fill="#fff"/><rect width="494" height="350" fill="#3c3b6e"/></svg>}
+                {lang === 'cn' && <svg viewBox="0 0 900 600" className="w-full h-full"><rect width="900" height="600" fill="#de2910"/><path fill="#ffde00" d="M250.4 180.3l37.2 27.2-14.3 43.8 37.3-27.1 37.3 27.1-14.3-43.8 37.2-27.2-46-0.1-14.2-43.9-14.2 43.9z"/></svg>}
+                {lang === 'ja' && <svg viewBox="0 0 900 600" className="w-full h-full"><rect width="900" height="600" fill="#fff"/><circle cx="450" cy="300" r="150" fill="#bc002d"/></svg>}
+                {lang === 'ko' && <svg viewBox="0 0 900 600" className="w-full h-full"><rect width="900" height="600" fill="#fff"/><circle cx="450" cy="300" r="150" fill="#cd2e3a"/><path d="M300,300 Q450,150 600,300" fill="#0047a0"/></svg>}
+                {lang === 'es' && <svg viewBox="0 0 900 600" className="w-full h-full"><rect width="900" height="150" fill="#aa151b"/><rect y="150" width="900" height="300" fill="#f1bf00"/><rect y="450" width="900" height="150" fill="#aa151b"/></svg>}
+                {lang === 'fr' && <svg viewBox="0 0 900 600" className="w-full h-full"><rect width="300" height="600" fill="#002395"/><rect x="300" width="300" height="600" fill="#fff"/><rect x="600" width="300" height="600" fill="#ed2939"/></svg>}
+              </button>
+              {showLangMenu && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setShowLangMenu(false)} />
+                  <div className="absolute top-full right-0 mt-2 bg-[#111] border border-white/10 rounded-xl shadow-2xl z-[101] py-1 min-w-[160px] animate-in fade-in slide-in-from-top-1">
+                    {([
+                      { code: 'en' as const, label: 'English', flag: <svg viewBox="0 0 1235 650" className="w-5 h-3.5"><rect width="1235" height="650" fill="#b22234"/><path d="M0,0H1235V50H0M0,100H1235V150H0M0,200H1235V250H0M0,300H1235V350H0M0,400H1235V450H0M0,500H1235V550H0M0,600H1235V650H0" fill="#fff"/><rect width="494" height="350" fill="#3c3b6e"/></svg> },
+                      { code: 'cn' as const, label: '中文', flag: <svg viewBox="0 0 900 600" className="w-5 h-3.5"><rect width="900" height="600" fill="#de2910"/><path fill="#ffde00" d="M250.4 180.3l37.2 27.2-14.3 43.8 37.3-27.1 37.3 27.1-14.3-43.8 37.2-27.2-46-0.1-14.2-43.9-14.2 43.9z"/></svg> },
+                      { code: 'ja' as const, label: '日本語', flag: <svg viewBox="0 0 900 600" className="w-5 h-3.5"><rect width="900" height="600" fill="#fff"/><circle cx="450" cy="300" r="150" fill="#bc002d"/></svg> },
+                      { code: 'ko' as const, label: '한국어', flag: <svg viewBox="0 0 900 600" className="w-5 h-3.5"><rect width="900" height="600" fill="#fff"/><circle cx="450" cy="300" r="150" fill="#cd2e3a"/><path d="M300,300 Q450,150 600,300" fill="#0047a0"/></svg> },
+                      { code: 'es' as const, label: 'Español', flag: <svg viewBox="0 0 900 600" className="w-5 h-3.5"><rect width="900" height="150" fill="#aa151b"/><rect y="150" width="900" height="300" fill="#f1bf00"/><rect y="450" width="900" height="150" fill="#aa151b"/></svg> },
+                      { code: 'fr' as const, label: 'Français', flag: <svg viewBox="0 0 900 600" className="w-5 h-3.5"><rect width="300" height="600" fill="#002395"/><rect x="300" width="300" height="600" fill="#fff"/><rect x="600" width="300" height="600" fill="#ed2939"/></svg> },
+                    ]).map(item => (
+                      <button
+                        key={item.code}
+                        onClick={() => { changeLang(item.code); setShowLangMenu(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition hover:bg-white/10 ${lang === item.code ? 'text-green-400 font-bold' : 'text-white/70'}`}
+                      >
+                        <span className="overflow-hidden rounded-[2px] shadow-sm shrink-0">{item.flag}</span>
+                        <span>{item.label}</span>
+                        {lang === item.code && <span className="ml-auto text-green-400 text-xs">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
-            </button>
+            </div>
           </div>
           
           <nav className="hidden md:flex items-center gap-4 text-sm font-black text-zinc-400">
