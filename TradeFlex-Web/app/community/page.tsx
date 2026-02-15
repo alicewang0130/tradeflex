@@ -8,7 +8,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, TrendingUp, TrendingDown, ThumbsUp, Send, ArrowLeft, Flame, Clock, Search, Plus, X, Loader2 } from 'lucide-react';
+import { MessageCircle, TrendingUp, TrendingDown, ThumbsUp, Send, ArrowLeft, Flame, Clock, Search, Plus, X, Loader2, Rocket } from 'lucide-react';
 import { supabase } from '../supabase';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
@@ -389,8 +389,13 @@ export default function CommunityPage() {
         {/* Header */}
         <div className="border-b border-white/10 bg-[#111]/80 backdrop-blur-xl sticky top-0 z-10">
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-            <button onClick={() => setSelectedPost(null)} className="p-2 hover:bg-white/10 rounded-lg transition">
-              <ArrowLeft size={20} />
+            <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition">
+              <Rocket className="w-5 h-5 text-green-500 -rotate-45" />
+              <span className="font-black text-sm bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent hidden sm:inline">TRADEFLEX</span>
+            </Link>
+            <span className="text-zinc-700">|</span>
+            <button onClick={() => setSelectedPost(null)} className="p-1 hover:bg-white/10 rounded-lg transition">
+              <ArrowLeft size={18} />
             </button>
             <h1 className="font-bold text-lg">{text.discussion}</h1>
           </div>
@@ -484,9 +489,11 @@ export default function CommunityPage() {
         <div className="max-w-3xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <Link href="/" className="p-2 hover:bg-white/10 rounded-lg transition">
-                <ArrowLeft size={20} />
+              <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition">
+                <Rocket className="w-5 h-5 text-green-500 -rotate-45" />
+                <span className="font-black text-sm bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent hidden sm:inline">TRADEFLEX</span>
               </Link>
+              <span className="text-zinc-700">|</span>
               <h1 className="text-xl font-black tracking-tight">
                 {text.community}
               </h1>

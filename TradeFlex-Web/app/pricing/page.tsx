@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, Crown, Sparkles, BarChart3, Bell, Palette, Shield } from 'lucide-react';
+import { ArrowLeft, Check, Crown, Sparkles, BarChart3, Bell, Palette, Shield, Rocket } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PricingPage() {
@@ -328,9 +328,11 @@ export default function PricingPage() {
       {/* Header */}
       <div className="border-b border-white/10 bg-[#111]/80 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/" className="p-2 hover:bg-white/10 rounded-lg transition">
-            <ArrowLeft size={20} />
+          <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition">
+            <Rocket className="w-5 h-5 text-green-500 -rotate-45" />
+            <span className="font-black text-sm bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent hidden sm:inline">TRADEFLEX</span>
           </Link>
+          <span className="text-zinc-700">|</span>
           <h1 className="font-bold text-lg">{text.pricing}</h1>
         </div>
       </div>

@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { isAdmin } from '../lib/admin';
 import { useRouter } from 'next/navigation';
-import { Users, BarChart3, ArrowLeft, Shield, TrendingUp, Clock, Ban, ShieldCheck, Loader2 } from 'lucide-react';
+import { Users, BarChart3, ArrowLeft, Shield, TrendingUp, Clock, Ban, ShieldCheck, Loader2, Rocket } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 interface Profile {
@@ -164,10 +164,12 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
-              className="text-zinc-400 hover:text-white transition"
+              className="flex items-center gap-1.5 hover:opacity-80 transition"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <Rocket className="w-5 h-5 text-green-500 -rotate-45" />
+              <span className="font-black text-sm bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent hidden sm:inline">TRADEFLEX</span>
             </button>
+            <span className="text-zinc-700">|</span>
             <div className="flex items-center gap-2">
               <Shield className="w-6 h-6 text-yellow-400" />
               <h1 className="text-2xl font-black tracking-tighter">{text.adminPanel}</h1>
