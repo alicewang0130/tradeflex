@@ -428,7 +428,6 @@ export default function Home() {
           </div>
           
           <nav className="hidden md:flex items-center gap-6 text-sm font-black text-zinc-400">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white hover:text-white transition">ORACLE</button>
             <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
             <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
             <a href="/community" className="hover:text-white transition">COMMUNITY</a>
