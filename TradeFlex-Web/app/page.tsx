@@ -454,12 +454,10 @@ export default function Home() {
             </div>
           </nav>
           
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="md:hidden flex gap-1 text-xs font-black tracking-wide text-zinc-400">
-              <a href="/community" className="hover:text-white transition">COMMUNITY</a>
-              <span className="text-zinc-600">|</span>
+          {/* Mobile: auth only (top right) */}
+          <div className="flex items-center gap-2 md:hidden">
               {user ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-xs font-black text-zinc-400">
                   {isAdmin(user.email) && (
                     <a href="/admin" className="text-yellow-400" title="Admin">⚙️</a>
                   )}
@@ -469,15 +467,21 @@ export default function Home() {
                   </button>
                 </div>
               ) : (
-                <>
+                <div className="flex gap-1 text-xs font-black text-zinc-400">
                   <a href="/login" className="hover:text-white transition">LOGIN</a>
                   <span>/</span>
                   <a href="/login?mode=signup" className="text-white hover:text-green-400 transition">JOIN</a>
-                </>
+                </div>
               )}
-            </div>
-
           </div>
+        </div>
+
+        {/* Mobile: nav links row below logo */}
+        <div className="md:hidden flex gap-4 text-xs font-black tracking-wide text-zinc-400 -mt-4 mb-2">
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white">ORACLE</button>
+          <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">LEADERBOARD</button>
+          <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition">CREATE</button>
+          <a href="/community" className="hover:text-white transition">COMMUNITY</a>
         </div>
 
         <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md transition-all duration-500">
