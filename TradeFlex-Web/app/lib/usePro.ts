@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import type { User } from '@supabase/supabase-js';
+import { isAdmin } from './admin';
 
 export interface ProStatus {
   isPro: boolean;
@@ -31,6 +32,12 @@ export function usePro(user: User | null): ProStatus {
     }
 
     async function checkPro() {
+      // Admin users are always Pro
+      if (isAdmin(user!.email)) {
+        setStatus({ isPro: true, plan: 'yearly', expiresAt: null, loading: false });
+        return;
+      }
+
       try {
         const { data } = await supabase
           .from('subscriptions')
