@@ -506,7 +506,7 @@ export default function Home() {
             >
               <span className="text-2xl transition">🐂</span>
               <span className="font-black text-green-500">{text.bullish}</span>
-              <span className="text-xs text-green-500/60 transition-all duration-500">{bullPercent}%</span>
+              <span className="text-sm font-bold text-green-400 transition-all duration-500">{bullPercent}%</span>
             </button>
             <button 
               onClick={() => handleVote('bear')}
@@ -522,7 +522,7 @@ export default function Home() {
             >
               <span className="text-2xl transition">🐻</span>
               <span className="font-black text-red-500">{text.bearish}</span>
-              <span className="text-xs text-red-500/60 transition-all duration-500">{bearPercent}%</span>
+              <span className="text-sm font-bold text-red-400 transition-all duration-500">{bearPercent}%</span>
             </button>
           </div>
           
