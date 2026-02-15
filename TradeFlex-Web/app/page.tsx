@@ -9,9 +9,10 @@
 
 import { useState, useEffect } from 'react';
 import { Share2, Download, Rocket, LogOut } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { supabase } from './supabase';
 import type { User } from '@supabase/supabase-js';
+import { isAdmin } from './lib/admin';
 
 export default function Home() {
   const [ticker, setTicker] = useState('TSLA');
@@ -30,11 +31,44 @@ export default function Home() {
 
   // Auth State
   const [user, setUser] = useState<User | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        // Restore user's language preference
+        const userLang = user.user_metadata?.lang as 'en' | 'cn' | undefined;
+        if (userLang) {
+          setLang(userLang);
+          localStorage.setItem('tradeflex-lang', userLang);
+        }
+        const created = new Date(user.created_at).getTime();
+        const lastSignIn = new Date(user.last_sign_in_at || '').getTime();
+        const isNew = Math.abs(lastSignIn - created) < 10000;
+        setIsNewUser(isNew);
+        setShowWelcome(true);
+        setTimeout(() => setShowWelcome(false), 10000);
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const newUser = session?.user ?? null;
+      setUser(newUser);
+      if (event === 'SIGNED_IN' && newUser) {
+        // Restore user's language preference
+        const userLang = newUser.user_metadata?.lang as 'en' | 'cn' | undefined;
+        if (userLang) {
+          setLang(userLang);
+          localStorage.setItem('tradeflex-lang', userLang);
+        }
+        const created = new Date(newUser.created_at).getTime();
+        const lastSignIn = new Date(newUser.last_sign_in_at || '').getTime();
+        const isNew = Math.abs(lastSignIn - created) < 10000;
+        setIsNewUser(isNew);
+        setShowWelcome(true);
+        setTimeout(() => setShowWelcome(false), 10000);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -59,6 +93,10 @@ export default function Home() {
   const changeLang = (newLang: 'en' | 'cn') => {
     setLang(newLang);
     localStorage.setItem('tradeflex-lang', newLang);
+    // Save to user profile if logged in
+    if (user) {
+      supabase.auth.updateUser({ data: { lang: newLang } });
+    }
   };
 
   // Oracle State
@@ -121,20 +159,21 @@ export default function Home() {
       preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(async () => {
         try {
-          const canvas = await html2canvas(preview, {
-            backgroundColor: null,
-            scale: 2,
-            logging: false,
-            useCORS: true,
-            allowTaint: true,
-            ignoreElements: (element) => element.tagName === 'BUTTON'
+          const dataUrl = await toPng(preview, {
+            pixelRatio: 2,
+            filter: (node) => {
+              return !(node instanceof HTMLElement && node.tagName === 'BUTTON');
+            },
           });
-          const image = canvas.toDataURL("image/png");
+
+          const fileName = `TradeFlex-${ticker}-${pnlPercent.toFixed(2)}%.png`;
+
+          // Direct download — on iPhone opens image in new tab for easy save
           const link = document.createElement('a');
-          link.href = image;
-          link.download = `TradeFlex-${ticker}-${pnlPercent.toFixed(2)}%.png`;
+          link.href = dataUrl;
+          link.download = fileName;
           link.click();
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to generate image:", err);
         }
       }, 500);
@@ -229,6 +268,25 @@ export default function Home() {
     <main className="min-h-screen bg-black text-white font-sans p-4 md:p-8 relative selection:bg-green-500/30">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
       
+      {/* Welcome Toast */}
+      {showWelcome && user && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="bg-green-500 px-6 py-3 rounded-xl shadow-2xl shadow-green-500/30 flex items-center gap-3">
+            <span className="text-2xl">{isNewUser ? '🎉' : '🚀'}</span>
+            <span className="text-sm font-bold text-black">
+              {isNewUser ? (
+                lang === 'cn' 
+                  ? <>欢迎加入 TradeFlex，<span className="text-black/80">{user.email?.split('@')[0]}</span>！一起创造历史 🏆</>
+                  : <>Welcome to TradeFlex, <span className="text-black/80">{user.email?.split('@')[0]}</span>! Let&apos;s make history 🏆</>
+              ) : (
+                lang === 'cn'
+                  ? <>欢迎回来，<span className="text-black/80">{user.email?.split('@')[0]}</span>！准备好晒战绩了吗？</>
+                  : <>Welcome back, <span className="text-black/80">{user.email?.split('@')[0]}</span>! Ready to flex?</>
+              )}
+            </span>
+          </div>
+        </div>
+      )}
       <style jsx global>{`
         @keyframes float {
           0% { transform: translateY(0px); }
@@ -276,7 +334,10 @@ export default function Home() {
             <div className="flex items-center gap-1 border-l border-zinc-800 pl-6">
               {user ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-bold">{user.email?.split('@')[0]}</span>
+                  {isAdmin(user.email) && (
+                    <a href="/admin" className="text-yellow-400 hover:text-yellow-300 transition mr-1" title="Admin Panel">⚙️ Manage</a>
+                  )}
+                  <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
                   <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -295,7 +356,10 @@ export default function Home() {
             <div className="md:hidden flex gap-1 text-xs font-black tracking-wide text-zinc-400">
               {user ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-white">{user.email?.split('@')[0]}</span>
+                  {isAdmin(user.email) && (
+                    <a href="/admin" className="text-yellow-400" title="Admin">⚙️</a>
+                  )}
+                  <span className="text-green-400 font-bold">{user.email?.split('@')[0]}</span>
                   <button onClick={handleLogout} className="hover:text-red-400 transition" title="Log out">
                     <LogOut className="w-3 h-3" />
                   </button>
