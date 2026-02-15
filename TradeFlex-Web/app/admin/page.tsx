@@ -38,7 +38,52 @@ export default function AdminPage() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [lang, setLang] = useState<'en' | 'cn'>('en');
   const router = useRouter();
+
+  // Load language preference
+  useEffect(() => {
+    const savedLang = localStorage.getItem('tradeflex-lang') as 'en' | 'cn' | null;
+    if (savedLang) setLang(savedLang);
+  }, []);
+
+  const t = {
+    en: {
+      adminPanel: 'ADMIN PANEL',
+      statistics: 'Statistics',
+      users: 'Users',
+      totalUsers: 'Total Users',
+      flexesGenerated: 'Flexes Generated',
+      flexesToday: 'Flexes Today',
+      oracleVotes: 'Oracle Votes',
+      user: 'User',
+      email: 'Email',
+      joined: 'Joined',
+      role: 'Role',
+      actions: 'Actions',
+      ban: 'Ban',
+      unban: 'Unban',
+      noUsers: "No users found. Make sure you've run the schema.sql in Supabase.",
+    },
+    cn: {
+      adminPanel: '管理后台',
+      statistics: '数据统计',
+      users: '用户管理',
+      totalUsers: '总用户数',
+      flexesGenerated: '已生成海报',
+      flexesToday: '今日海报',
+      oracleVotes: 'Oracle 投票',
+      user: '用户',
+      email: '邮箱',
+      joined: '注册时间',
+      role: '角色',
+      actions: '操作',
+      ban: '封禁',
+      unban: '解封',
+      noUsers: '暂无用户。请确认已在 Supabase 运行 schema.sql。',
+    },
+  };
+  const text = t[lang];
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -125,12 +170,18 @@ export default function AdminPage() {
             </button>
             <div className="flex items-center gap-2">
               <Shield className="w-6 h-6 text-yellow-400" />
-              <h1 className="text-2xl font-black tracking-tighter">ADMIN PANEL</h1>
+              <h1 className="text-2xl font-black tracking-tighter">{text.adminPanel}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-yellow-400 font-bold">{user.email?.split('@')[0]}</span>
             <span className="text-[10px] bg-yellow-900/50 text-yellow-400 px-2 py-0.5 rounded border border-yellow-900">ADMIN</span>
+            <button
+              onClick={() => { const next = lang === 'en' ? 'cn' : 'en'; setLang(next); localStorage.setItem('tradeflex-lang', next); }}
+              className="ml-2 text-lg hover:scale-110 transition"
+            >
+              {lang === 'en' ? '🇨🇳' : '🇺🇸'}
+            </button>
           </div>
         </div>
 
@@ -145,7 +196,7 @@ export default function AdminPage() {
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            Statistics
+            {text.statistics}
           </button>
           <button
             onClick={() => setActiveTab('users')}
@@ -156,7 +207,7 @@ export default function AdminPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            Users
+            {text.users}
           </button>
         </div>
 
@@ -165,10 +216,10 @@ export default function AdminPage() {
           <div className="space-y-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-blue-400', bg: 'bg-blue-900/20 border-blue-900/50' },
-                { label: 'Flexes Generated', value: stats.totalFlexes, icon: TrendingUp, color: 'text-green-400', bg: 'bg-green-900/20 border-green-900/50' },
-                { label: 'Flexes Today', value: stats.flexesToday, icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-900/50' },
-                { label: 'Oracle Votes', value: stats.totalVotes, icon: BarChart3, color: 'text-purple-400', bg: 'bg-purple-900/20 border-purple-900/50' },
+                { label: text.totalUsers, value: stats.totalUsers, icon: Users, color: 'text-blue-400', bg: 'bg-blue-900/20 border-blue-900/50' },
+                { label: text.flexesGenerated, value: stats.totalFlexes, icon: TrendingUp, color: 'text-green-400', bg: 'bg-green-900/20 border-green-900/50' },
+                { label: text.flexesToday, value: stats.flexesToday, icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-900/50' },
+                { label: text.oracleVotes, value: stats.totalVotes, icon: BarChart3, color: 'text-purple-400', bg: 'bg-purple-900/20 border-purple-900/50' },
               ].map((stat) => (
                 <div key={stat.label} className={`${stat.bg} border rounded-xl p-4 md:p-6`}>
                   <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
@@ -194,11 +245,11 @@ export default function AdminPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-zinc-800 text-zinc-500 text-xs uppercase tracking-widest">
-                      <th className="text-left p-4 font-bold">User</th>
-                      <th className="text-left p-4 font-bold hidden md:table-cell">Email</th>
-                      <th className="text-left p-4 font-bold hidden md:table-cell">Joined</th>
-                      <th className="text-left p-4 font-bold">Role</th>
-                      <th className="text-left p-4 font-bold">Actions</th>
+                      <th className="text-left p-4 font-bold">{text.user}</th>
+                      <th className="text-left p-4 font-bold hidden md:table-cell">{text.email}</th>
+                      <th className="text-left p-4 font-bold hidden md:table-cell">{text.joined}</th>
+                      <th className="text-left p-4 font-bold">{text.role}</th>
+                      <th className="text-left p-4 font-bold">{text.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -241,9 +292,9 @@ export default function AdminPage() {
                             }`}
                           >
                             {profile.banned ? (
-                              <><ShieldCheck className="w-3 h-3" /> Unban</>
+                              <><ShieldCheck className="w-3 h-3" /> {text.unban}</>
                             ) : (
-                              <><Ban className="w-3 h-3" /> Ban</>
+                              <><Ban className="w-3 h-3" /> {text.ban}</>
                             )}
                           </button>
                         </td>
@@ -252,7 +303,7 @@ export default function AdminPage() {
                     {users.length === 0 && (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-zinc-600">
-                          No users found. Make sure you&apos;ve run the schema.sql in Supabase.
+                          {text.noUsers}
                         </td>
                       </tr>
                     )}
