@@ -431,6 +431,7 @@ export default function Home() {
             <button onClick={() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">LEADERBOARD</button>
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white mr-6">ORACLE</button>
             <button onClick={() => document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition mr-6">CREATE</button>
+            <a href="/community" className="hover:text-white transition mr-6">💬 COMMUNITY</a>
             
             <div className="flex items-center gap-1 border-l border-zinc-800 pl-6">
               {user ? (
