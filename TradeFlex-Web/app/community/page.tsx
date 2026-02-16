@@ -3,15 +3,69 @@
 //  TradeFlex - Community Discussion Page
 //
 //  Stock discussion forum where traders share ideas, DD, and market talk.
+//  Includes Pro-exclusive sticker picker with 45 stickers across 6 packs.
 //
 
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, TrendingUp, TrendingDown, ThumbsUp, Send, ArrowLeft, Flame, Clock, Search, Plus, X, Loader2, Rocket } from 'lucide-react';
+import { MessageCircle, TrendingUp, TrendingDown, ThumbsUp, Send, ArrowLeft, Flame, Clock, Search, Plus, X, Loader2, Rocket, Lock, Smile } from 'lucide-react';
 import { supabase } from '../supabase';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// ============ STICKER DATA ============
+
+const STICKER_PACKS = [
+  {
+    id: 'bull-a',
+    emoji: '🐂',
+    stickers: Array.from({ length: 6 }, (_, i) => `/stickers/bull-a-${String(i + 1).padStart(2, '0')}.png`),
+  },
+  {
+    id: 'bunny',
+    emoji: '🐰',
+    stickers: Array.from({ length: 6 }, (_, i) => `/stickers/bunny-${String(i + 1).padStart(2, '0')}.png`),
+  },
+  {
+    id: 'bull-16',
+    emoji: '🐂',
+    stickers: Array.from({ length: 15 }, (_, i) => `/stickers/bull-16-${String(i + 1).padStart(2, '0')}.png`),
+  },
+  {
+    id: 'bull-b',
+    emoji: '🐂',
+    stickers: Array.from({ length: 6 }, (_, i) => `/stickers/bull-b-${String(i + 1).padStart(2, '0')}.png`),
+  },
+  {
+    id: 'corgi',
+    emoji: '🐕',
+    stickers: Array.from({ length: 6 }, (_, i) => `/stickers/corgi-${String(i + 1).padStart(2, '0')}.png`),
+  },
+  {
+    id: 'orange',
+    emoji: '🟠',
+    stickers: Array.from({ length: 6 }, (_, i) => `/stickers/orange-${String(i + 1).padStart(2, '0')}.png`),
+  },
+];
+
+// ============ STICKER PACK NAME TRANSLATIONS ============
+
+const stickerPackNames: Record<string, Record<string, string>> = {
+  'bull-a': { en: 'Bull A', cn: '公牛 A', ja: 'ブル A', ko: '불 A', es: 'Toro A', fr: 'Taureau A' },
+  'bunny': { en: 'Bunny', cn: '兔子', ja: 'バニー', ko: '토끼', es: 'Conejito', fr: 'Lapin' },
+  'bull-16': { en: 'Bull Collection', cn: '公牛合集', ja: 'ブルコレクション', ko: '불 컬렉션', es: 'Colección Toro', fr: 'Collection Taureau' },
+  'bull-b': { en: 'Bull B', cn: '公牛 B', ja: 'ブル B', ko: '불 B', es: 'Toro B', fr: 'Taureau B' },
+  'corgi': { en: 'Corgi', cn: '柯基', ja: 'コーギー', ko: '코기', es: 'Corgi', fr: 'Corgi' },
+  'orange': { en: 'Orange', cn: '橙子', ja: 'オレンジ', ko: '오렌지', es: 'Naranja', fr: 'Orange' },
+};
+
+// ============ HELPER: is content a sticker path? ============
+
+function isSticker(content: string): boolean {
+  return content.startsWith('/stickers/') && content.endsWith('.png');
+}
 
 // Types
 interface Post {
@@ -66,6 +120,110 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toLocaleDateString();
 }
 
+// ============ STICKER PICKER COMPONENT ============
+
+function StickerPicker({
+  onSelect,
+  onClose,
+  lang,
+  isPro,
+  stickerText,
+}: {
+  onSelect: (stickerPath: string) => void;
+  onClose: () => void;
+  lang: string;
+  isPro: boolean;
+  stickerText: { stickers: string; upgradeToProStickers: string; packNames: Record<string, string> };
+}) {
+  const [activePack, setActivePack] = useState(STICKER_PACKS[0].id);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [onClose]);
+
+  const currentPack = STICKER_PACKS.find(p => p.id === activePack) || STICKER_PACKS[0];
+
+  /* ---- PRO GATE: Replace `!isPro` check below with actual pro status when Stripe is ready ---- */
+  if (!isPro) {
+    return (
+      <div ref={panelRef} className="absolute bottom-full mb-2 right-0 w-72 bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 shadow-2xl z-50 text-center">
+        <button onClick={onClose} className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded-lg transition">
+          <X size={16} className="text-white/40" />
+        </button>
+        <Lock size={32} className="mx-auto mb-3 text-yellow-500" />
+        <p className="text-sm font-bold mb-2">{stickerText.upgradeToProStickers}</p>
+        <Link
+          href="/pricing"
+          className="inline-block mt-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold px-4 py-2 rounded-xl text-sm hover:opacity-90 transition"
+        >
+          Upgrade →
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={panelRef} className="absolute bottom-full mb-2 right-0 w-80 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
+        <span className="text-sm font-bold">{stickerText.stickers}</span>
+        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg transition">
+          <X size={16} className="text-white/40" />
+        </button>
+      </div>
+
+      {/* Pack tabs */}
+      <div className="flex gap-1 px-3 py-2 border-b border-white/5 overflow-x-auto scrollbar-hide">
+        {STICKER_PACKS.map(pack => (
+          <button
+            key={pack.id}
+            onClick={() => setActivePack(pack.id)}
+            title={stickerText.packNames[pack.id] || pack.id}
+            className={`flex-shrink-0 px-2 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
+              activePack === pack.id
+                ? 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30'
+                : 'bg-white/5 text-white/50 hover:text-white/80'
+            }`}
+          >
+            <span>{pack.emoji}</span>
+            <span className="hidden sm:inline">{stickerText.packNames[pack.id] || pack.id}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Sticker grid */}
+      <div className="grid grid-cols-4 gap-2 p-3 max-h-64 overflow-y-auto">
+        {currentPack.stickers.map(stickerPath => (
+          <button
+            key={stickerPath}
+            onClick={() => onSelect(stickerPath)}
+            className="aspect-square rounded-lg hover:bg-white/10 transition p-1 flex items-center justify-center"
+          >
+            <Image
+              src={stickerPath}
+              alt="sticker"
+              width={60}
+              height={60}
+              className="object-contain w-[60px] h-[60px]"
+              unoptimized
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============ MAIN PAGE COMPONENT ============
+
 export default function CommunityPage() {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -89,12 +247,26 @@ export default function CommunityPage() {
   const [newComment, setNewComment] = useState('');
   const commentInputRef = useRef<HTMLInputElement>(null);
 
+  // Sticker pickers
+  const [showCommentStickers, setShowCommentStickers] = useState(false);
+  const [showPostStickers, setShowPostStickers] = useState(false);
+
   // Language
   const [lang, setLang] = useState<'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr'>('en');
   useEffect(() => {
     const saved = localStorage.getItem('tradeflex-lang') as 'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr' | null;
     if (saved) setLang(saved);
   }, []);
+
+  // ---- PRO CHECK ----
+  // TODO: Replace with real Stripe/pro check when ready.
+  // For now, all logged-in users can access stickers.
+  // When Stripe is integrated, use something like:
+  //   const isPro = user?.user_metadata?.role === 'pro';
+  // or fetch from profiles table:
+  //   const [isPro, setIsPro] = useState(false);
+  //   useEffect(() => { if (user) checkProStatus(user.id); }, [user]);
+  const isPro = !!user; // <-- REPLACE WITH REAL PRO CHECK
 
   const tr = {
     en: {
@@ -118,6 +290,8 @@ export default function CommunityPage() {
       toComment: 'to comment',
       dropComment: 'Drop a comment... 💬',
       noComments: 'No comments yet. Be the first! 🚀',
+      stickers: '🎨 Stickers',
+      upgradeToProStickers: 'Upgrade to Pro to unlock stickers! 🔒',
     },
     cn: {
       community: '💬 社区',
@@ -140,6 +314,8 @@ export default function CommunityPage() {
       toComment: '后评论',
       dropComment: '写条评论... 💬',
       noComments: '还没有评论，来抢沙发！🚀',
+      stickers: '🎨 贴纸',
+      upgradeToProStickers: '升级到 Pro 解锁贴纸！🔒',
     },
     ja: {
       community: '💬 コミュニティ',
@@ -162,6 +338,8 @@ export default function CommunityPage() {
       toComment: 'してコメント',
       dropComment: 'コメントを書こう... 💬',
       noComments: 'まだコメントがありません。最初の一人になろう！🚀',
+      stickers: '🎨 ステッカー',
+      upgradeToProStickers: 'Pro にアップグレードしてステッカーを解除！🔒',
     },
     ko: {
       community: '💬 커뮤니티',
@@ -184,6 +362,8 @@ export default function CommunityPage() {
       toComment: '후 댓글 작성',
       dropComment: '댓글을 남겨보세요... 💬',
       noComments: '아직 댓글이 없어요. 첫 댓글을 달아보세요! 🚀',
+      stickers: '🎨 스티커',
+      upgradeToProStickers: 'Pro로 업그레이드하여 스티커를 잠금 해제하세요! 🔒',
     },
     es: {
       community: '💬 Comunidad',
@@ -206,6 +386,8 @@ export default function CommunityPage() {
       toComment: 'para comentar',
       dropComment: 'Deja un comentario... 💬',
       noComments: 'Aún no hay comentarios. ¡Sé el primero! 🚀',
+      stickers: '🎨 Stickers',
+      upgradeToProStickers: '¡Actualiza a Pro para desbloquear stickers! 🔒',
     },
     fr: {
       community: '💬 Communauté',
@@ -228,9 +410,20 @@ export default function CommunityPage() {
       toComment: 'pour commenter',
       dropComment: 'Laisse un commentaire... 💬',
       noComments: 'Pas encore de commentaires. Sois le premier ! 🚀',
+      stickers: '🎨 Autocollants',
+      upgradeToProStickers: 'Passe à Pro pour débloquer les autocollants ! 🔒',
     },
   };
   const text = tr[lang];
+
+  // Build sticker text helper for picker component
+  const stickerText = {
+    stickers: text.stickers,
+    upgradeToProStickers: text.upgradeToProStickers,
+    packNames: Object.fromEntries(
+      STICKER_PACKS.map(p => [p.id, stickerPackNames[p.id]?.[lang] || p.id])
+    ),
+  };
 
   // Auth
   useEffect(() => {
@@ -332,6 +525,37 @@ export default function CommunityPage() {
     setPosting(false);
   }
 
+  // Send sticker as a new post (content = sticker path)
+  async function handleStickerPost(stickerPath: string) {
+    if (!user) return;
+    setPosting(true);
+    try {
+      const username = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anon';
+      const { error } = await supabase.from('community_posts').insert({
+        user_id: user.id,
+        username,
+        avatar_emoji: '🦍',
+        ticker: newTicker.toUpperCase() || null,
+        title: newTitle || '🎨',
+        content: stickerPath,
+        sentiment: newSentiment,
+        likes: 0,
+        comment_count: 0,
+      });
+      if (error) throw error;
+      setShowNewPost(false);
+      setShowPostStickers(false);
+      setNewTitle('');
+      setNewContent('');
+      setNewTicker('');
+      setNewSentiment('neutral');
+      loadPosts();
+    } catch (err) {
+      console.error('Failed to create sticker post:', err);
+    }
+    setPosting(false);
+  }
+
   async function handleLikePost(postId: string) {
     if (!user) return;
     try {
@@ -372,6 +596,33 @@ export default function CommunityPage() {
       setSelectedPost({ ...selectedPost, comment_count: (selectedPost.comment_count || 0) + 1 });
     } catch (err) {
       console.error('Failed to comment:', err);
+    }
+  }
+
+  // Send sticker as a comment
+  async function handleStickerComment(stickerPath: string) {
+    if (!user || !selectedPost) return;
+    setShowCommentStickers(false);
+    try {
+      const username = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anon';
+      const { error } = await supabase.from('community_comments').insert({
+        post_id: selectedPost.id,
+        user_id: user.id,
+        username,
+        avatar_emoji: '🦍',
+        content: stickerPath,
+        likes: 0,
+      });
+      if (error) throw error;
+
+      await supabase.from('community_posts')
+        .update({ comment_count: (selectedPost.comment_count || 0) + 1 })
+        .eq('id', selectedPost.id);
+
+      loadComments(selectedPost.id);
+      setSelectedPost({ ...selectedPost, comment_count: (selectedPost.comment_count || 0) + 1 });
+    } catch (err) {
+      console.error('Failed to send sticker comment:', err);
     }
   }
 
@@ -417,7 +668,21 @@ export default function CommunityPage() {
               <SentimentBadge sentiment={selectedPost.sentiment} />
             </div>
             <h2 className="text-xl font-bold mb-3">{selectedPost.title}</h2>
-            <p className="text-white/70 whitespace-pre-wrap leading-relaxed">{selectedPost.content}</p>
+            {/* Render sticker or text content */}
+            {isSticker(selectedPost.content) ? (
+              <div className="py-2">
+                <Image
+                  src={selectedPost.content}
+                  alt="sticker"
+                  width={120}
+                  height={120}
+                  className="object-contain w-[120px] h-[120px]"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <p className="text-white/70 whitespace-pre-wrap leading-relaxed">{selectedPost.content}</p>
+            )}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/10">
               <button
                 onClick={() => handleLikePost(selectedPost.id)}
@@ -433,7 +698,7 @@ export default function CommunityPage() {
 
           {/* Comment input */}
           {user ? (
-            <div className="flex gap-3 mb-6">
+            <div className="flex gap-3 mb-6 relative">
               <input
                 ref={commentInputRef}
                 value={newComment}
@@ -442,6 +707,25 @@ export default function CommunityPage() {
                 placeholder={text.dropComment}
                 className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-green-500/50 placeholder:text-white/30"
               />
+              {/* Sticker button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowCommentStickers(!showCommentStickers)}
+                  className="bg-[#1a1a1a] border border-white/10 hover:border-white/20 px-3 rounded-xl transition flex items-center"
+                  title={text.stickers}
+                >
+                  <Smile size={20} className="text-white/50 hover:text-yellow-400 transition" />
+                </button>
+                {showCommentStickers && (
+                  <StickerPicker
+                    onSelect={handleStickerComment}
+                    onClose={() => setShowCommentStickers(false)}
+                    lang={lang}
+                    isPro={isPro}
+                    stickerText={stickerText}
+                  />
+                )}
+              </div>
               <button
                 onClick={handleNewComment}
                 disabled={!newComment.trim()}
@@ -464,14 +748,28 @@ export default function CommunityPage() {
           ) : (
             <div className="space-y-3">
               {comments.map(comment => (
-                <div key={comment.id} className="bg-[#111] border border-white/5 rounded-xl p-4">
+                <div key={comment.id} className={`${isSticker(comment.content) ? '' : 'bg-[#111] border border-white/5 rounded-xl p-4'}`}>
                   <div className="flex items-center gap-2 mb-2">
                     <span>{comment.avatar_emoji}</span>
                     <span className="font-medium text-sm">{comment.username}</span>
                     <span className="text-white/30 text-xs">·</span>
                     <span className="text-white/40 text-xs">{timeAgo(comment.created_at)}</span>
                   </div>
-                  <p className="text-white/70 text-sm">{comment.content}</p>
+                  {/* Render sticker or text */}
+                  {isSticker(comment.content) ? (
+                    <div className="pl-7">
+                      <Image
+                        src={comment.content}
+                        alt="sticker"
+                        width={120}
+                        height={120}
+                        className="object-contain w-[120px] h-[120px]"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-white/70 text-sm">{comment.content}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -597,7 +895,21 @@ export default function CommunityPage() {
                       <SentimentBadge sentiment={post.sentiment} />
                     </div>
                     <h3 className="font-bold text-sm group-hover:text-green-400 transition mb-1">{post.title}</h3>
-                    <p className="text-white/40 text-xs line-clamp-2">{post.content}</p>
+                    {/* Preview: sticker or text */}
+                    {isSticker(post.content) ? (
+                      <div className="py-1">
+                        <Image
+                          src={post.content}
+                          alt="sticker"
+                          width={60}
+                          height={60}
+                          className="object-contain w-[60px] h-[60px]"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-white/40 text-xs line-clamp-2">{post.content}</p>
+                    )}
                     <div className="flex items-center gap-4 mt-2">
                       <span className="flex items-center gap-1 text-xs text-white/30">
                         <ThumbsUp size={12} /> {post.likes}
@@ -620,7 +932,7 @@ export default function CommunityPage() {
           <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">{text.newDiscussion}</h2>
-              <button onClick={() => setShowNewPost(false)} className="p-1 hover:bg-white/10 rounded-lg transition">
+              <button onClick={() => { setShowNewPost(false); setShowPostStickers(false); }} className="p-1 hover:bg-white/10 rounded-lg transition">
                 <X size={20} />
               </button>
             </div>
@@ -672,15 +984,36 @@ export default function CommunityPage() {
                 className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-green-500/50 placeholder:text-white/30 resize-none"
               />
 
-              {/* Submit */}
-              <button
-                onClick={handleNewPost}
-                disabled={posting || !newTitle.trim() || !newContent.trim()}
-                className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-30 disabled:hover:bg-green-500 text-black font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
-              >
-                {posting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                {posting ? text.posting : text.postToCommunity}
-              </button>
+              {/* Sticker button + Submit row */}
+              <div className="flex gap-2">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowPostStickers(!showPostStickers)}
+                    className="bg-[#1a1a1a] border border-white/10 hover:border-white/20 px-4 py-3 rounded-xl transition flex items-center gap-2"
+                    title={text.stickers}
+                  >
+                    <Smile size={20} className="text-white/50 hover:text-yellow-400 transition" />
+                    <span className="text-xs text-white/40">{text.stickers}</span>
+                  </button>
+                  {showPostStickers && (
+                    <StickerPicker
+                      onSelect={handleStickerPost}
+                      onClose={() => setShowPostStickers(false)}
+                      lang={lang}
+                      isPro={isPro}
+                      stickerText={stickerText}
+                    />
+                  )}
+                </div>
+                <button
+                  onClick={handleNewPost}
+                  disabled={posting || !newTitle.trim() || !newContent.trim()}
+                  className="flex-1 bg-green-500 hover:bg-green-600 disabled:opacity-30 disabled:hover:bg-green-500 text-black font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
+                >
+                  {posting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+                  {posting ? text.posting : text.postToCommunity}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -731,7 +1064,7 @@ function getMockComments(postId: string): Comment[] {
     return [
       { id: 'c1', post_id: '1', user_id: '10', username: 'DiamondHands', avatar_emoji: '💎', content: 'HODL! 🚀🚀🚀 This is the way.', likes: 42, created_at: new Date(Date.now() - 1800000).toISOString() },
       { id: 'c2', post_id: '1', user_id: '11', username: 'SkepticalTrader', avatar_emoji: '🧐', content: 'What\'s your source for the short interest data? Last I checked it was down significantly from the peak.', likes: 15, created_at: new Date(Date.now() - 1200000).toISOString() },
-      { id: 'c3', post_id: '1', user_id: '12', username: 'WallStBets', avatar_emoji: '🦧', content: 'Sir, this is a Wendy\'s. But also I\'m in for 100 shares.', likes: 89, created_at: new Date(Date.now() - 600000).toISOString() },
+      { id: 'c3', post_id: '1', user_id: '12', username: 'WallStBets', avatar_emoji: '🦧', content: '/stickers/bull-a-01.png', likes: 89, created_at: new Date(Date.now() - 600000).toISOString() },
     ];
   }
   return [
