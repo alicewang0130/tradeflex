@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Crown, Sparkles, BarChart3, Bell, Palette, Shield, Rocket } from 'lucide-react';
 import Link from 'next/link';
+import SubscribeButton from '../components/SubscribeButton';
 
 export default function PricingPage() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
@@ -409,9 +410,11 @@ export default function PricingPage() {
                 <div className="text-xs text-white/30 mt-1">{text.billedYearly}</div>
               )}
             </div>
-            <button className="block w-full text-center bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-black py-3 rounded-xl transition mb-8">
-              {text.upgradeToPro}
-            </button>
+            <SubscribeButton
+              plan={billing}
+              text={text.upgradeToPro}
+              className="block w-full text-center bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-black py-3 rounded-xl transition mb-8"
+            />
             <p className="text-xs text-white/30 mb-4">{text.everythingInFree}</p>
             <ul className="space-y-3">
               {text.proFeatures.map((f, i) => {
