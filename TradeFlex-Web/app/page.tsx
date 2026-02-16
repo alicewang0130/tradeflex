@@ -982,7 +982,7 @@ export default function Home() {
               </div>
               
               {showEmojiPicker && (
-                <div className="absolute left-0 right-0 z-50 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 mt-1">
+                <div className="relative z-50 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 mt-1">
                   {/* Emoji row */}
                   <div className="flex flex-wrap gap-2 mb-3">
                     <button 
