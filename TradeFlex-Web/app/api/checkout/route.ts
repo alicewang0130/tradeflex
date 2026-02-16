@@ -24,6 +24,16 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { plan } = body; // 'monthly' | 'yearly'
+    
+    // MOCK MODE CHECK
+    const isMock = process.env.STRIPE_SECRET_KEY?.includes('mock') || !process.env.STRIPE_SECRET_KEY;
+    if (isMock) {
+        const origin = request.headers.get('origin') || 'http://localhost:3000';
+        return NextResponse.json({ 
+            url: `${origin}/mock-checkout?plan=${plan}&userId=${user.id}` 
+        });
+    }
+
     const priceId = PRICES[plan as keyof typeof PRICES];
 
     if (!priceId) {

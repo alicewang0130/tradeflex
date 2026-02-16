@@ -45,6 +45,13 @@ export default function Home() {
   const { isPro } = usePro(user);
 
   useEffect(() => {
+    // Capture referral code
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('tradeflex_referrer', ref);
+    }
+
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
         // Check if banned
@@ -59,6 +66,20 @@ export default function Home() {
           return;
         }
         setUser(user);
+
+        // Handle Referral logic
+        const referrerId = localStorage.getItem('tradeflex_referrer');
+        if (referrerId && referrerId !== user.id) {
+          supabase.from('referrals').insert({
+            referrer_id: referrerId,
+            referred_id: user.id
+          }).then(({ error }) => {
+            if (!error || error.code === '23505') {
+              localStorage.removeItem('tradeflex_referrer');
+            }
+          });
+        }
+
         // Restore user's language preference
         const userLang = user.user_metadata?.lang as 'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr' | undefined;
         if (userLang) {

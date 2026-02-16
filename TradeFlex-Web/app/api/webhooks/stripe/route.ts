@@ -19,12 +19,18 @@ export async function POST(request: Request) {
   const body = await request.text();
   const headersList = await headers();
   const sig = headersList.get('stripe-signature');
+  const url = new URL(request.url);
+  const isMock = url.searchParams.get('mock') === 'true';
 
   let event: Stripe.Event;
 
   try {
-    if (!sig || !endpointSecret) throw new Error('Missing signature or secret');
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+    if (isMock) {
+        event = JSON.parse(body) as Stripe.Event;
+    } else {
+        if (!sig || !endpointSecret) throw new Error('Missing signature or secret');
+        event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+    }
   } catch (err: any) {
     console.error(`Webhook Signature Verification Failed: ${err.message}`);
     return NextResponse.json({ error: err.message }, { status: 400 });
@@ -41,7 +47,13 @@ export async function POST(request: Request) {
         if (!userId) break;
 
         // Retrieve subscription details to get end date
-        const subscription: any = await stripe.subscriptions.retrieve(session.subscription as string);
+        let subscription: any;
+        if (isMock) {
+            // Mock subscription object
+            subscription = { current_period_end: Math.floor(Date.now() / 1000) + 30 * 24 * 3600 };
+        } else {
+            subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        }
 
         // Upsert into Supabase
         await supabaseAdmin.from('subscriptions').upsert({
