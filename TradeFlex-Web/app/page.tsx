@@ -26,6 +26,8 @@ export default function Home() {
   const [type, setType] = useState('LONG');
   const [status, setStatus] = useState<'OPEN' | 'CLOSED'>('OPEN');
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
+  const [selectedSticker, setSelectedSticker] = useState<string | null>(null);
+  const [stickerTab, setStickerTab] = useState(0);
   
   // Option State
   const [instrument, setInstrument] = useState<'STOCK' | 'OPTION'>('STOCK');
@@ -963,7 +965,7 @@ export default function Home() {
               />
             </div>
 
-            {/* Emoji Picker (Collapsible) */}
+            {/* Emoji & Sticker Picker (Collapsible) */}
             <div className="space-y-2 relative">
               <div className="flex justify-between items-center cursor-pointer" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-2">
@@ -972,43 +974,101 @@ export default function Home() {
                     🐶
                   </span>
                 </label>
-                {selectedEmoji && (
+                {selectedSticker ? (
+                  <img src={selectedSticker} alt="sticker" className="w-8 h-8 object-contain" />
+                ) : selectedEmoji ? (
                   <span className="text-xl animate-bounce">{selectedEmoji}</span>
-                )}
+                ) : null}
               </div>
               
               {showEmojiPicker && (
-                <div className="absolute left-0 right-0 z-50 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-300 mt-1">
-                  {/* Default Mascot Button */}
-                  <button 
-                    onClick={() => setSelectedEmoji(null)}
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === null ? 'bg-white text-black ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
-                  >
-                    🐮
-                  </button>
-                  
-                  {/* Smart Emoji List */}
-                  {(isProfit 
-                    ? ['🚀','💎','🐂','🤑','🌕','📈','💰','🏦','😎','🏎️'] 
-                    : ['😭','🤡','🐻','💀','📉','🥀','💸','🚑','🚽','🛑']
-                  ).map(emoji => (
+                <div className="absolute left-0 right-0 z-50 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 mt-1">
+                  {/* Emoji row */}
+                  <div className="flex flex-wrap gap-2 mb-3">
                     <button 
-                      key={emoji}
-                      onClick={() => setSelectedEmoji(emoji)}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === emoji ? 'bg-white text-black' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                      onClick={() => { setSelectedEmoji(null); setSelectedSticker(null); }}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === null && !selectedSticker ? 'bg-white text-black ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
                     >
-                      {emoji}
+                      🐮
                     </button>
-                  ))}
-                  
-                  {/* Custom Input */}
-                  <input 
-                     type="text" 
-                     placeholder="+"
-                     maxLength={2}
-                     className="w-10 h-10 rounded-lg bg-black border border-zinc-700 text-center text-xl focus:border-green-500 outline-none text-white"
-                     onChange={(e) => setSelectedEmoji(e.target.value)}
-                  />
+                    {(isProfit 
+                      ? ['🚀','💎','🐂','🤑','🌕','📈','💰','🏦','😎','🏎️'] 
+                      : ['😭','🤡','🐻','💀','📉','🥀','💸','🚑','🚽','🛑']
+                    ).map(emoji => (
+                      <button 
+                        key={emoji}
+                        onClick={() => { setSelectedEmoji(emoji); setSelectedSticker(null); }}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition ${selectedEmoji === emoji && !selectedSticker ? 'bg-white text-black' : 'bg-black border border-zinc-700 hover:border-zinc-500'}`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                    <input 
+                       type="text" 
+                       placeholder="+"
+                       maxLength={2}
+                       className="w-10 h-10 rounded-lg bg-black border border-zinc-700 text-center text-xl focus:border-green-500 outline-none text-white"
+                       onChange={(e) => { setSelectedEmoji(e.target.value); setSelectedSticker(null); }}
+                    />
+                  </div>
+
+                  {/* Sticker packs divider */}
+                  <div className="border-t border-zinc-700 pt-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-zinc-500 uppercase">{isPro ? '✨ PRO STICKERS' : '🔒 PRO STICKERS'}</span>
+                    </div>
+                    {isPro ? (
+                      <>
+                        {/* Pack tabs */}
+                        <div className="flex gap-1 mb-2 overflow-x-auto">
+                          {[
+                            { emoji: '🐂', name: 'Bull A' },
+                            { emoji: '🐰', name: 'Bunny' },
+                            { emoji: '⭐', name: 'Collection' },
+                            { emoji: '🐂', name: 'Bull B' },
+                            { emoji: '🐕', name: 'Corgi' },
+                            { emoji: '🟠', name: 'Orange' },
+                          ].map((pack, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setStickerTab(i)}
+                              className={`px-2 py-1 rounded-lg text-xs whitespace-nowrap transition ${stickerTab === i ? 'bg-green-500 text-black font-bold' : 'bg-black border border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}
+                            >
+                              {pack.emoji} {pack.name}
+                            </button>
+                          ))}
+                        </div>
+                        {/* Sticker grid */}
+                        <div className="grid grid-cols-5 gap-2 max-h-40 overflow-y-auto">
+                          {(() => {
+                            const packs = [
+                              Array.from({length: 6}, (_, i) => `/stickers/bull-a-${String(i+1).padStart(2,'0')}.png`),
+                              Array.from({length: 6}, (_, i) => `/stickers/bunny-${String(i+1).padStart(2,'0')}.png`),
+                              Array.from({length: 15}, (_, i) => `/stickers/bull-16-${String(i+1).padStart(2,'0')}.png`),
+                              Array.from({length: 6}, (_, i) => `/stickers/bull-b-${String(i+1).padStart(2,'0')}.png`),
+                              Array.from({length: 6}, (_, i) => `/stickers/corgi-${String(i+1).padStart(2,'0')}.png`),
+                              Array.from({length: 6}, (_, i) => `/stickers/orange-${String(i+1).padStart(2,'0')}.png`),
+                            ];
+                            return packs[stickerTab]?.map(src => (
+                              <button
+                                key={src}
+                                onClick={() => { setSelectedSticker(src); setSelectedEmoji(null); }}
+                                className={`w-14 h-14 rounded-lg p-1 transition ${selectedSticker === src ? 'bg-green-500/30 ring-2 ring-green-500' : 'bg-black border border-zinc-700 hover:border-green-500/50'}`}
+                              >
+                                <img src={src} alt="" className="w-full h-full object-contain" />
+                              </button>
+                            ));
+                          })()}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4">
+                        <div className="text-3xl mb-2">🔒</div>
+                        <p className="text-xs text-zinc-500 mb-2">{lang === 'cn' ? '升级 Pro 解锁可爱表情包！' : lang === 'ja' ? 'Proにアップグレードしてスタンプを解除！' : lang === 'ko' ? 'Pro로 업그레이드하여 스티커를 잠금 해제!' : lang === 'es' ? '¡Actualiza a Pro para desbloquear stickers!' : lang === 'fr' ? 'Passe à Pro pour débloquer les stickers !' : 'Upgrade to Pro to unlock cute stickers!'}</p>
+                        <a href="/pricing" className="text-green-500 text-xs font-bold hover:underline">→ {lang === 'cn' ? '查看价格' : lang === 'ja' ? '料金を見る' : lang === 'ko' ? '가격 보기' : lang === 'es' ? 'Ver precios' : lang === 'fr' ? 'Voir les tarifs' : 'View Pricing'}</a>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1118,7 +1178,9 @@ export default function Home() {
                 )}
                 
                 <div className="flex items-center justify-center pt-4">
-                  {selectedEmoji ? (
+                  {selectedSticker ? (
+                    <img src={selectedSticker} alt="sticker" className="w-32 h-32 object-contain animate-bounce drop-shadow-2xl" />
+                  ) : selectedEmoji ? (
                     <span className="text-9xl animate-bounce drop-shadow-2xl filter">{selectedEmoji}</span>
                   ) : (
                     <span className="text-9xl animate-bounce drop-shadow-2xl filter">
