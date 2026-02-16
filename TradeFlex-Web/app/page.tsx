@@ -1179,7 +1179,7 @@ export default function Home() {
                 
                 <div className="flex items-center justify-center pt-4">
                   {selectedSticker ? (
-                    <img src={selectedSticker} alt="sticker" className="w-32 h-32 object-contain animate-bounce drop-shadow-2xl" />
+                    <img src={selectedSticker} alt="sticker" className="w-48 h-48 object-contain animate-bounce drop-shadow-2xl" />
                   ) : selectedEmoji ? (
                     <span className="text-9xl animate-bounce drop-shadow-2xl filter">{selectedEmoji}</span>
                   ) : (
