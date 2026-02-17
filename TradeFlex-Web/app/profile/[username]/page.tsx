@@ -11,6 +11,7 @@ import { supabase } from '../../supabase';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import LossCertificate from '@/app/components/LossCertificate';
 
 interface ProfileData {
   id: string;
@@ -305,42 +306,55 @@ export default function ProfilePage() {
             {trades.length === 0 ? (
               <div className="text-center py-8 text-white/30 text-sm">No trades yet</div>
             ) : trades.map(trade => (
-              <div key={trade.id} className="bg-[#111] border border-white/5 rounded-xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black ${
-                    trade.pnl_percent >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
-                  }`}>
-                    {trade.pnl_percent >= 0 ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+              <div key={trade.id} className="bg-[#111] border border-white/5 rounded-xl p-4 flex flex-col gap-2">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black ${
+                      trade.pnl_percent >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+                    }`}>
+                      {trade.pnl_percent >= 0 ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold font-mono">${trade.ticker}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          trade.position_type === 'LONG' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+                        }`}>{trade.position_type}</span>
+                        {trade.instrument === 'OPTION' && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-400 font-bold">OPT</span>
+                        )}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          trade.status === 'OPEN' ? 'bg-blue-900/50 text-blue-400' : 'bg-zinc-800 text-zinc-400'
+                        }`}>{trade.status}</span>
+                      </div>
+                      <div className="text-xs text-white/30 mt-0.5">
+                        ${trade.entry_price.toFixed(2)} → {trade.exit_price ? `$${trade.exit_price.toFixed(2)}` : '...'}
+                        <span className="ml-2">{timeAgo(trade.created_at)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold font-mono">${trade.ticker}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                        trade.position_type === 'LONG' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
-                      }`}>{trade.position_type}</span>
-                      {trade.instrument === 'OPTION' && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-400 font-bold">OPT</span>
-                      )}
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                        trade.status === 'OPEN' ? 'bg-blue-900/50 text-blue-400' : 'bg-zinc-800 text-zinc-400'
-                      }`}>{trade.status}</span>
+                  <div className="text-right">
+                    <div className={`font-black text-lg ${trade.pnl_percent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {trade.pnl_percent >= 0 ? '+' : ''}{trade.pnl_percent.toFixed(1)}%
                     </div>
-                    <div className="text-xs text-white/30 mt-0.5">
-                      ${trade.entry_price.toFixed(2)} → {trade.exit_price ? `$${trade.exit_price.toFixed(2)}` : '...'}
-                      <span className="ml-2">{timeAgo(trade.created_at)}</span>
-                    </div>
+                    {trade.pnl_amount !== 0 && (
+                      <div className={`text-xs ${trade.pnl_amount >= 0 ? 'text-green-400/60' : 'text-red-400/60'}`}>
+                        {trade.pnl_amount >= 0 ? '+' : ''}${trade.pnl_amount.toFixed(0)}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className={`font-black text-lg ${trade.pnl_percent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {trade.pnl_percent >= 0 ? '+' : ''}{trade.pnl_percent.toFixed(1)}%
-                  </div>
-                  {trade.pnl_amount !== 0 && (
-                    <div className={`text-xs ${trade.pnl_amount >= 0 ? 'text-green-400/60' : 'text-red-400/60'}`}>
-                      {trade.pnl_amount >= 0 ? '+' : ''}${trade.pnl_amount.toFixed(0)}
-                    </div>
-                  )}
-                </div>
+                
+                {/* Loss Certificate Button (Auto-shows if loss > 30%) */}
+                {profile && (
+                  <LossCertificate 
+                    symbol={trade.ticker} 
+                    lossPercentage={trade.pnl_percent} 
+                    username={profile.display_name} 
+                    entryPrice={trade.entry_price} 
+                    exitPrice={trade.exit_price || 0} 
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -395,6 +409,7 @@ function getMockProfile(username: string): ProfileData {
 
 function getMockTrades(): Trade[] {
   return [
+    { id: '0', ticker: 'PLTR', position_type: 'LONG', entry_price: 45.00, exit_price: 13.95, quantity: 1000, pnl_percent: -69.0, pnl_amount: -31050, status: 'CLOSED', instrument: 'STOCK', created_at: new Date(Date.now() - 3600000).toISOString() },
     { id: '1', ticker: 'TSLA', position_type: 'LONG', entry_price: 180.50, exit_price: 248.90, quantity: 100, pnl_percent: 37.9, pnl_amount: 6840, status: 'CLOSED', instrument: 'STOCK', created_at: new Date(Date.now() - 86400000).toISOString() },
     { id: '2', ticker: 'NVDA', position_type: 'LONG', entry_price: 650, exit_price: 820, quantity: 20, pnl_percent: 26.2, pnl_amount: 3400, status: 'CLOSED', instrument: 'STOCK', created_at: new Date(Date.now() - 172800000).toISOString() },
     { id: '3', ticker: 'SPY', position_type: 'LONG', entry_price: 4.20, exit_price: 12.50, quantity: 50, pnl_percent: 197.6, pnl_amount: 41500, status: 'CLOSED', instrument: 'OPTION', created_at: new Date(Date.now() - 259200000).toISOString() },

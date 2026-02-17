@@ -11,7 +11,7 @@ import Link from 'next/link';
 import SubscribeButton from '../components/SubscribeButton';
 
 export default function PricingPage() {
-  const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [lang, setLang] = useState<'en' | 'cn' | 'ja' | 'ko' | 'es' | 'fr'>('en');
 
   useEffect(() => {
@@ -52,6 +52,9 @@ export default function PricingPage() {
         'Follow traders',
       ],
       proFeatures: [
+        'Retail vs Market Sentiment 📊',
+        'AI "Roast My Trade" Analysis 🤖',
+        '1v1 Battle Mode ⚔️',
         'Premium trade card templates (no watermark)',
         'Custom card backgrounds',
         'Advanced trading analytics & PnL charts',
@@ -101,6 +104,9 @@ export default function PricingPage() {
         '关注其他交易者',
       ],
       proFeatures: [
+        '散户 vs 市场情绪指数 📊',
+        'AI "毒舌" 交易点评 🤖🔥',
+        '1v1 交易对决 (Battle Mode) ⚔️',
         '高级交易卡片模板（无水印）',
         '自定义卡片背景',
         '高级交易分析 & 盈亏图表',
@@ -150,6 +156,9 @@ export default function PricingPage() {
         'トレーダーをフォロー',
       ],
       proFeatures: [
+        '個人投資家 vs 市場センチメント 📊',
+        'AI "毒舌" トレード診断 🤖🔥',
+        '1v1 トレードバトル (Battle Mode) ⚔️',
         'プレミアム・トレードカードテンプレート（透かしなし）',
         'カスタム・カード背景',
         '高度なトレード分析 & 損益チャート',
@@ -199,6 +208,9 @@ export default function PricingPage() {
         '트레이더 팔로우',
       ],
       proFeatures: [
+        '개인 vs 시장 심리 지수 (Sentiment) 📊',
+        'AI "독설" 트레이드 분석 🤖🔥',
+        '1v1 트레이드 배틀 (Battle Mode) ⚔️',
         '프리미엄 트레이드 카드 템플릿 (워터마크 없음)',
         '카드 배경 커스터마이징',
         '고급 트레이딩 분석 & 손익 차트',
@@ -248,6 +260,9 @@ export default function PricingPage() {
         'Seguir traders',
       ],
       proFeatures: [
+        'Índice de Sentimiento: Retail vs Mercado 📊',
+        'Análisis AI "Roast My Trade" 🤖🔥',
+        'Modo Batalla 1v1 (Battle Mode) ⚔️',
         'Plantillas premium de trade cards (sin marca de agua)',
         'Fondos personalizados para cards',
         'Análisis avanzado de trading y gráficos de PnL',
@@ -297,6 +312,9 @@ export default function PricingPage() {
         'Suivre des traders',
       ],
       proFeatures: [
+        'Sentiment Retail vs Marché 📊',
+        'Analyse AI "Roast My Trade" 🤖🔥',
+        'Mode Bataille 1v1 (Battle Mode) ⚔️',
         'Templates premium de trade cards (sans filigrane)',
         'Fonds de card personnalisés',
         'Analyse de trading avancée & graphiques PnL',
